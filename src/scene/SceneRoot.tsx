@@ -19,7 +19,9 @@ import type { PerfTier } from '../hooks/usePerfTier'
 
 const DUST_COUNT: Record<PerfTier, number> = { low: 400, medium: 800, high: 1400 }
 const TREE_COUNT: Record<PerfTier, number> = { low: 150, medium: 280, high: 430 }
-const DPR_MAX: Record<PerfTier, number> = { low: 1.25, medium: 1.5, high: 2 }
+/* low is phones: 1x means a 390pt screen renders 390px — the scene is soft
+   and foggy by design, and the fill-rate saving is what buys 60fps */
+const DPR_MAX: Record<PerfTier, number> = { low: 1, medium: 1.5, high: 2 }
 
 export function SceneRoot({ tier, reducedMotion }: { tier: PerfTier; reducedMotion: boolean }) {
   const animate = !reducedMotion

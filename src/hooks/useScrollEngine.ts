@@ -16,6 +16,9 @@ export function useScrollEngine() {
 
   useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    // iOS fires resize every time the URL bar collapses mid-scroll; without
+    // this, every trigger refreshes DURING the scroll and the page hitches
+    ScrollTrigger.config({ ignoreMobileResize: true })
     const lenis = new Lenis({
       duration: reduced ? 0 : 1.1,
       smoothWheel: !reduced,
@@ -77,7 +80,14 @@ export function useScrollEngine() {
     lenis.on('scroll', update)
     window.addEventListener('scroll', update, { passive: true })
 
+    // Same story for the camera anchors: a height-only resize on a touch
+    // device is the browser chrome moving, not a real layout change — if we
+    // re-measure, maxScroll shifts under the finger and the camera jumps.
+    const coarse = window.matchMedia('(pointer: coarse)').matches
+    let lastWidth = window.innerWidth
     const onResize = () => {
+      if (coarse && window.innerWidth === lastWidth) return
+      lastWidth = window.innerWidth
       measure()
       update()
     }

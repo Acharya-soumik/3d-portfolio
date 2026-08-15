@@ -30,11 +30,18 @@ export function About() {
       // One trigger over the whole block, not one per paragraph — paragraph 2's
       // top crosses the start line long before paragraph 1's bottom reaches the
       // end line, so per-paragraph triggers overlap and light words out of order.
-      const wordEls = root.current?.querySelectorAll('.about-copy .w')
-      if (wordEls?.length) {
+      //
+      // On touch devices the scrub drives whole PARAGRAPHS, not words —
+      // writing ~150 span opacities per scroll frame is what made phones
+      // stutter through this section. Four targets is compositor change.
+      const coarse = window.matchMedia('(pointer: coarse)').matches
+      const scrubEls = root.current?.querySelectorAll(
+        coarse ? '.about-copy .scrub' : '.about-copy .w',
+      )
+      if (scrubEls?.length) {
         gsap.fromTo(
-          wordEls,
-          { opacity: 0.16 },
+          scrubEls,
+          { opacity: coarse ? 0.25 : 0.16 },
           {
             opacity: 1,
             ease: 'none',

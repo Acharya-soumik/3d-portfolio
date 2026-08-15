@@ -2163,6 +2163,27 @@ html.is-loading .hero-logos {
     -webkit-backdrop-filter: none;
     background: rgba(20, 23, 17, 0.85);
   }
+
+  /* 100vh sticky viewports resize every time the iOS toolbar collapses,
+     which re-lays-out the pinned chapter mid-scroll. The small-viewport
+     unit is stable while the browser chrome animates. */
+  .stats-sticky,
+  .projects-sticky {
+    height: 100svh;
+  }
+
+  /* plaque styles are written per frame from the render loop — promote them
+     once so those writes stay on the compositor */
+  .stat-plaques.is-live .stat-plaque {
+    will-change: transform, opacity;
+  }
+
+  /* counters re-render as they scrub; without fixed-width digits the plaque
+     box changes width every frame and forces layout */
+  .stat-plaque-value,
+  .stat-num {
+    font-variant-numeric: tabular-nums;
+  }
 }
 
 /* ─── responsive ─── */

@@ -31,9 +31,18 @@ export function Stats() {
   const legendRefs = useRef<(HTMLSpanElement | null)[]>([])
   const [activeBrand, setActiveBrand] = useState<Brand | null>(null)
 
-  // scrub counters from the shared growth curve
+  // scrub counters from the shared growth curve. Text writes re-layout the
+  // plaques, so touch devices update at ~10Hz — imperceptible on a counter,
+  // but it stops the per-frame layout churn that made phones hitch here.
   useEffect(() => {
+    const coarse = window.matchMedia('(pointer: coarse)').matches
+    let lastWrite = 0
     const render = (chapter: number) => {
+      if (coarse) {
+        const now = performance.now()
+        if (now - lastWrite < 100) return
+        lastWrite = now
+      }
       const growth = statGrowth(chapter)
       stats.forEach((s, i) => {
         const value = String(Math.round(s.value * growth[i]))
