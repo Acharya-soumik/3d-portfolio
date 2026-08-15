@@ -1,0 +1,3684 @@
+/* ────────────────────────────────────────────────
+   SOUMIK.A — "Soft Monument" design system
+   Dark sage sculpture-gallery: matte clay, stone,
+   bone typography, one soft glow.
+   ──────────────────────────────────────────────── */
+
+:root {
+  --bg: #1d211a;
+  --bg-2: #262b21;
+  --ink: #e9e6da;
+  --dim: #a3ac95;
+  --faint: #7c856f;
+  --clay: #8fa285;
+  --glow: #d9e6c9;
+
+  /* Second temperature. The scene's key light is a dusk sun off to the right;
+     ember is that light brought into the type. Used on exactly three things:
+     the availability dot, the primary CTA, and the ledger's outcome metric.
+     --glow stays cool and keeps its own jobs (moonlight, progress, nav CTA). */
+  --ember: #e0954a;
+  --ember-deep: #b85c2a;
+  --ember-glow: rgba(224, 149, 74, 0.32);
+
+  /* Inverted plate. Credibility reads as a different material, not more text. */
+  --bone: #e9e6da;
+  --bone-2: #dcd8c8;
+  --bone-ink: #1d211a;
+  --bone-dim: #5d6551;
+  --bone-line: rgba(29, 33, 26, 0.14);
+  --line: rgba(233, 230, 218, 0.12);
+  --line-soft: rgba(233, 230, 218, 0.07);
+  --card: rgba(38, 43, 33, 0.72);
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Figtree', system-ui, sans-serif;
+
+  --radius: 22px;
+  --pad: clamp(1.25rem, 4vw, 4rem);
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+html.is-loading {
+  overflow: hidden;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--glow);
+  color: var(--bg);
+}
+
+/* label utility — quiet letter-spaced caps (was monospace in v1) */
+.mono {
+  font-family: var(--font-body);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+a {
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+}
+
+/* ─── 3D canvas ─── */
+
+.scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+main {
+  position: relative;
+  z-index: 1;
+}
+
+/* ─── shared layout ─── */
+
+.section {
+  position: relative;
+  padding: 18vh var(--pad);
+  isolation: isolate;
+}
+
+/* cinematic scrim: keeps copy readable over the bright 3D scene */
+.scrim-left::before,
+.scrim-center::before {
+  content: '';
+  position: absolute;
+  inset: -6vh 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.scrim-left::before {
+  background: linear-gradient(100deg, rgba(29, 33, 26, 0.85) 0%, rgba(29, 33, 26, 0.5) 46%, transparent 78%);
+}
+
+.scrim-center::before {
+  background: radial-gradient(ellipse 70% 60% at 50% 45%, rgba(29, 33, 26, 0.82) 0%, rgba(29, 33, 26, 0.45) 55%, transparent 80%);
+}
+
+.section p,
+.section h2,
+.section h3,
+.section li {
+  text-shadow: 0 1px 16px rgba(29, 33, 26, 0.8);
+}
+
+.container {
+  max-width: 72rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--clay);
+  margin-bottom: 2.2rem;
+}
+
+.accent {
+  color: var(--glow);
+  font-style: italic;
+}
+
+.chip {
+  display: inline-block;
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--dim);
+  background: rgba(38, 43, 33, 0.55);
+}
+
+/* soft matte panel with a travelling light along its border */
+@property --angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes borderSpin {
+  to {
+    --angle: 360deg;
+  }
+}
+
+@keyframes sheenPan {
+  from {
+    background-position: 0% 0%;
+  }
+  to {
+    background-position: 100% 100%;
+  }
+}
+
+.holo {
+  --angle: 0deg;
+  position: relative;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background:
+    linear-gradient(165deg, rgba(42, 48, 37, 0.92), rgba(29, 33, 26, 0.8)) padding-box,
+    conic-gradient(
+        from var(--angle),
+        rgba(233, 230, 218, 0.09) 0deg,
+        rgba(233, 230, 218, 0.09) 280deg,
+        rgba(217, 230, 201, 0.65) 320deg,
+        rgba(233, 230, 218, 0.09) 360deg
+      )
+      border-box;
+  box-shadow: 0 24px 60px rgba(10, 12, 8, 0.35);
+  animation: borderSpin 8s linear infinite;
+}
+
+/* slow interior light pan */
+.holo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(120deg, transparent 32%, rgba(143, 162, 133, 0.09) 50%, transparent 68%);
+  background-size: 240% 240%;
+  animation: sheenPan 9s ease-in-out infinite alternate;
+}
+
+/* ─── preloader ─── */
+
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.1rem;
+  transition: opacity 0.65s ease, filter 0.65s ease;
+}
+
+.preloader--exit {
+  opacity: 0;
+  filter: blur(8px);
+  pointer-events: none;
+}
+
+.preloader-mark {
+  font-family: var(--font-display);
+  font-size: 3.2rem;
+  font-weight: 500;
+  color: var(--glow);
+  animation: markBreath 2.4s ease-in-out infinite;
+}
+
+@keyframes markBreath {
+  50% {
+    opacity: 0.55;
+  }
+}
+
+.preloader-sub {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.preloader-bar {
+  margin-top: 1.6rem;
+  width: min(15rem, 60vw);
+  height: 2px;
+  background: var(--line-soft);
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.preloader-bar-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--glow);
+  transform-origin: left;
+}
+
+/* ─── nav ─── */
+
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--glow);
+  transform-origin: left;
+  transform: scaleX(0);
+  z-index: 40;
+  opacity: 0.7;
+}
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.15rem var(--pad);
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s;
+  background: linear-gradient(to bottom, rgba(29, 33, 26, 0.85), transparent);
+}
+
+.nav.is-ready {
+  opacity: 1;
+  transform: none;
+}
+
+.nav-mark {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.25rem;
+  color: var(--glow);
+  text-decoration: none;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.7rem;
+}
+
+.nav-link {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--faint);
+  transition: color 0.25s ease;
+}
+
+.nav-link:hover,
+.nav-link.is-active {
+  color: var(--ink);
+}
+
+.nav-link.is-active .nav-num {
+  color: var(--glow);
+}
+
+.nav-num {
+  color: var(--faint);
+  margin-right: 0.4rem;
+  font-weight: 500;
+}
+
+.nav-cta {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--bg);
+  background: var(--glow);
+  padding: 0.6rem 1.25rem;
+  border-radius: 999px;
+  transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.nav-cta:hover {
+  background: #eef6e2;
+  transform: translateY(-1px);
+}
+
+/* ─── hero ─── */
+
+/* Height is load-bearing: useScrollEngine measures anchors[1] from it, and the
+   stat towers start growing at chapter 0.55 — i.e. 71.5vh INTO the hero. Keep
+   130vh / 115vh and restructure inside it. Nothing here may change height at
+   runtime, or the camera desyncs from the scroll. */
+.hero {
+  min-height: 130vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+/* svh, never dvh: dvh shifts when the mobile URL bar hides, which would move
+   the hero's height mid-scroll. min-height, never height: overflow grows into
+   the 130vh instead of clipping the proof rail. */
+.hero-stage {
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: clamp(1rem, 2.5vh, 2rem);
+  padding: calc(4.5rem + 2vh) var(--pad) calc(1.25rem + env(safe-area-inset-bottom));
+}
+
+.hero-eyebrow {
+  margin-bottom: 0;
+}
+
+/* align-items:end keeps copy in the bottom 45% of frame — the only band that
+   is uniformly dark. The key light sits at [52,58,-140], so the LEFT flank is
+   the brightest part of the shot; the h1 must not climb into it. */
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.82fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: end;
+  align-content: end;
+}
+
+.hero-copy {
+  max-width: 42rem;
+  will-change: transform;
+}
+
+.hero-el,
+.hero-actions > *,
+.hero-ledger,
+.hero-proof,
+.hero-logos {
+  opacity: 0;
+}
+
+html.is-loading .hero-el,
+html.is-loading .hero-actions > *,
+html.is-loading .hero-ledger,
+html.is-loading .hero-proof,
+html.is-loading .hero-logos {
+  opacity: 0;
+}
+
+.status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ember);
+  margin-right: 0.6rem;
+  box-shadow: 0 0 10px var(--ember-glow);
+  animation: pulse 2.6s ease infinite;
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* The thesis, not the name. Words wrap; letters inside a word never split. */
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: 460;
+  font-variation-settings: 'SOFT' 45, 'WONK' 1;
+  font-size: clamp(2.6rem, 4.9vw, 5rem);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin: 0 0 1rem;
+  filter: drop-shadow(0 6px 40px rgba(10, 12, 8, 0.75));
+}
+
+/* one authored line; still wraps internally if a narrow phone demands it */
+.hero-line {
+  display: block;
+}
+
+.hero-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.hero-letter-mask {
+  display: inline-block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.hero-letter {
+  display: inline-block;
+  will-change: transform;
+}
+
+.hero-credit {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 1rem;
+}
+
+.hero-sub {
+  max-width: 34rem;
+  font-size: clamp(0.95rem, 1.1vw, 1.06rem);
+  line-height: 1.6;
+  color: var(--dim);
+  margin-bottom: 1.8rem;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* Two classes (0,2,0): .btn-primary lives ~900 lines below this block, so a
+   single-class override here would lose to it. */
+.hero-cta.hero-cta--primary {
+  background: var(--ember);
+  color: #17190f;
+  box-shadow: 0 8px 40px var(--ember-glow);
+  padding: 0.95rem 2rem;
+}
+
+.hero-cta.hero-cta--primary:hover {
+  background: #eda65c;
+  box-shadow: 0 12px 50px rgba(224, 149, 74, 0.42);
+}
+
+.hero-cta--ghost {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--dim);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.35rem;
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+
+.hero-cta--ghost:hover {
+  color: var(--ink);
+  border-color: var(--glow);
+}
+
+/* ── case ledger: the signature ──
+   All states stack in one grid cell and cross-fade. Swapping content in normal
+   flow would change the card's height every few seconds, which changes the
+   hero's height, which invalidates anchors[1] in useScrollEngine. The card's
+   height is the tallest entry, permanently. */
+.hero-ledger {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: 1.5rem 1.6rem 1.2rem;
+  max-width: 26rem;
+  justify-self: end;
+  width: 100%;
+}
+
+.hero-ledger-state {
+  grid-row: 1;
+  grid-column: 1;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  pointer-events: none;
+}
+
+.hero-ledger-state.is-active {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+.hero-ledger-sector {
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  color: var(--clay);
+  margin-bottom: 1.1rem;
+}
+
+.hero-ledger-row {
+  display: grid;
+  grid-template-columns: 4.6rem 1fr;
+  gap: 0 0.9rem;
+  align-items: baseline;
+  font-size: 0.87rem;
+  line-height: 1.45;
+  color: var(--dim);
+  padding-bottom: 0.9rem;
+}
+
+.hero-ledger-row--out {
+  color: var(--ink);
+  border-top: 1px solid var(--line-soft);
+  padding-top: 0.9rem;
+}
+
+.hero-ledger-key {
+  font-size: 0.56rem;
+  letter-spacing: 0.2em;
+  color: var(--faint);
+}
+
+.hero-ledger-metric {
+  font-family: var(--font-display);
+  font-variation-settings: 'SOFT' 30, 'WONK' 0;
+  font-size: 1.9rem;
+  line-height: 1;
+  color: var(--ember);
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.hero-ledger-metric span {
+  font-family: var(--font-body);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  color: var(--faint);
+}
+
+.hero-ledger-ticks {
+  grid-row: 2;
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-top: 1.2rem;
+}
+
+/* the tick is a button; the visible bar is its ::after so the tap
+   target stays comfortably taller than the 2px line */
+.hero-tick {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  width: 1.4rem;
+  padding: 0.55rem 0;
+  cursor: pointer;
+  display: inline-flex;
+}
+
+.hero-tick::after {
+  content: '';
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--line);
+  transition: background 0.4s ease;
+}
+
+.hero-tick:hover::after,
+.hero-tick:focus-visible::after {
+  background: var(--clay);
+}
+
+.hero-tick.is-active::after {
+  background: var(--ember);
+}
+
+.hero-ledger-nav {
+  margin-left: auto;
+  display: flex;
+  gap: 0.35rem;
+}
+
+.hero-ledger-arrow {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--dim);
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 0.78rem;
+  line-height: 1;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.hero-ledger-arrow:hover,
+.hero-ledger-arrow:focus-visible {
+  color: var(--ink);
+  border-color: var(--clay);
+}
+
+/* ── proof rail: the one inverted surface on the site ──
+   Opaque on purpose — no backdrop-filter (expensive over the canvas on phones,
+   and the dark scene would bleed through the cream). */
+.hero-proof {
+  background: var(--bone);
+  color: var(--bone-ink);
+  margin-inline: calc(var(--pad) * -1);
+  padding: 0.9rem var(--pad);
+  display: flex;
+  align-items: center;
+  gap: 0.8rem 1.6rem;
+  flex-wrap: wrap;
+}
+
+/* .section p/h2/h3/li sets a dark 16px text-shadow for legibility over the 3D
+   scene. On cream that reads as a smear. :is() inherits its most specific
+   argument's weight → (0,2,1), so this wins regardless of file position. */
+.section .hero-proof :is(p, h2, h3, li),
+.section .hero-proof {
+  text-shadow: none;
+}
+
+.hero-proof-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--bone-ink);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  border-right: 1px solid var(--bone-line);
+  padding-right: 1.6rem;
+}
+
+.hero-proof-mark {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex: none;
+}
+
+.hero-proof-facts {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.4rem;
+  margin: 0;
+}
+
+.hero-proof-facts li {
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  color: var(--bone-dim);
+}
+
+.hero-proof-terms {
+  font-size: 0.64rem;
+  letter-spacing: 0.14em;
+  color: var(--bone-dim);
+  margin-left: auto;
+}
+
+.hero-logos {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem 1.9rem;
+  flex-wrap: wrap;
+  padding-top: 1rem;
+}
+
+.hero-logos-title {
+  font-size: 0.58rem;
+  letter-spacing: 0.26em;
+  color: var(--faint);
+}
+
+.hero-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+  opacity: 0.85;
+}
+
+.hero-logo-icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  color: var(--clay);
+  flex: none;
+}
+
+.hero-tail {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-cue {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.hero-cue-line {
+  width: 1px;
+  height: 3.2rem;
+  background: linear-gradient(to bottom, var(--glow), transparent);
+  animation: cueDrop 2s ease infinite;
+}
+
+@keyframes cueDrop {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  55% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  56% {
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+/* ─── stats: sticky stage for the rising towers ─── */
+
+.stats {
+  position: relative;
+  height: 240vh;
+  isolation: isolate;
+}
+
+.stats-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  /* mobile browser chrome eats vh; svh keeps the bottom block on screen */
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 14vh var(--pad) 7vh;
+}
+
+.stats-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+/* plaques — pinned above each tower's crown by the 3D scene */
+
+.stat-plaques.is-live {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.stat-plaques.is-live .stat-plaque {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  visibility: hidden;
+  text-align: center;
+  max-width: 8rem;
+  padding: 0.45rem 0.55rem calc(0.45rem + var(--leader));
+  border-radius: 14px;
+  border: 1px solid var(--line-soft);
+  background: linear-gradient(180deg, rgba(29, 33, 26, 0.58), rgba(29, 33, 26, 0.34));
+  backdrop-filter: blur(7px);
+  -webkit-backdrop-filter: blur(7px);
+  will-change: transform, opacity;
+}
+
+/* hairline leader from the plaque down to the stone */
+.stat-plaques.is-live .stat-plaque::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 1px;
+  height: var(--leader);
+  background: linear-gradient(180deg, rgba(217, 230, 201, 0.55), rgba(217, 230, 201, 0));
+}
+
+.stat-plaque {
+  --leader: 26px;
+}
+
+.stat-plaque-value {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 2.4vw, 2.35rem);
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 26px rgba(10, 12, 8, 0.85);
+}
+
+.stat-prefix {
+  font-size: 0.6em;
+  color: var(--dim);
+}
+
+.stat-fix {
+  font-size: 0.42em;
+  color: var(--clay);
+  margin-left: 0.2rem;
+}
+
+.stat-plaque-label {
+  margin-top: 0.4rem;
+  max-width: 7rem;
+  font-size: 0.63rem;
+  line-height: 1.4;
+  color: var(--dim);
+  text-shadow: 0 1px 12px rgba(10, 12, 8, 0.9);
+}
+
+/* fallback: no WebGL, so the figures simply sit in the page */
+.stat-plaques:not(.is-live) {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem 1.6rem;
+  padding-inline: var(--pad);
+}
+
+.stat-plaques:not(.is-live) .stat-plaque {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  border-top: 1px solid var(--line);
+  padding-top: 1.2rem;
+}
+
+.stat-plaques:not(.is-live) .stat-plaque-value {
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  justify-content: flex-start;
+}
+
+.stat-plaques:not(.is-live) .stat-plaque-label {
+  font-size: 0.82rem;
+  max-width: 14rem;
+}
+
+/* legend: the copy for the figures, for viewports too narrow to carry it aloft */
+.stats-legend {
+  display: none;
+  list-style: none;
+  gap: 0.5rem 1.4rem;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 1.1rem;
+}
+
+.stat-legend {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 0 0.55rem;
+}
+
+.stat-legend-value {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.stat-legend-label {
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: var(--dim);
+}
+
+.brands {
+  border-top: 1px solid var(--line-soft);
+  padding-top: 1.4rem;
+}
+
+.brands-title {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 0.9rem;
+}
+
+.marquee {
+  overflow: hidden;
+  padding-block: 0.5rem;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: marqueeMove 34s linear infinite;
+}
+
+.marquee:hover .marquee-track,
+.marquee.is-paused .marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes marqueeMove {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.brand-cell {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.brand {
+  appearance: none;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: 'SOFT' 70, 'WONK' 1;
+  font-size: clamp(1.5rem, 2.6vw, 2.2rem);
+  color: var(--ink);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.2, 1.4, 0.4, 1), color 0.3s ease, filter 0.3s ease;
+}
+
+.brand:hover,
+.brand.is-active {
+  color: var(--glow);
+  transform: scale(1.14);
+  filter: drop-shadow(0 0 18px rgba(217, 230, 201, 0.35));
+}
+
+.brand-icon {
+  width: 0.85em;
+  height: 0.85em;
+  color: var(--clay);
+  flex: none;
+  transition: color 0.3s ease, transform 0.35s ease;
+}
+
+.brand:hover .brand-icon,
+.brand.is-active .brand-icon {
+  color: var(--glow);
+  transform: rotate(-6deg) scale(1.1);
+}
+
+.brand-sep {
+  color: var(--clay);
+  font-style: normal;
+  font-size: clamp(1.1rem, 2vw, 1.6rem);
+  margin: 0 1.6rem;
+  opacity: 0.7;
+}
+
+.brand-stat {
+  margin-top: 1.1rem;
+  min-height: 1.7em;
+  font-size: 0.92rem;
+  color: var(--dim);
+  animation: statIn 0.45s ease both;
+}
+
+.brand-stat-name {
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--glow);
+  font-size: 1.05rem;
+}
+
+@keyframes statIn {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    filter: blur(0);
+  }
+}
+
+/* ─── about ─── */
+
+.about {
+  min-height: 140vh;
+}
+
+.about-headline {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2rem, 4.8vw, 3.8rem);
+  line-height: 1.12;
+  max-width: 46rem;
+  margin-bottom: 2.4rem;
+  color: var(--ink);
+}
+
+/* The story reads off a bone "journal page" pinned over the 3D scene — the
+   site's one inverted surface family (see .hero-proof). Opaque on purpose:
+   no backdrop-filter over the canvas. */
+.about-copy {
+  position: relative;
+  max-width: 44rem;
+  display: grid;
+  gap: 0.85rem;
+  background: var(--bone);
+  color: var(--bone-ink);
+  padding: 1.7rem 2.1rem 1.4rem;
+  border-radius: 10px;
+  rotate: -0.5deg;
+  box-shadow:
+    0 34px 70px -24px rgba(0, 0, 0, 0.6),
+    0 10px 24px -10px rgba(0, 0, 0, 0.45);
+}
+
+/* ember bookmark tab peeking over the page's top edge */
+.about-copy::before {
+  content: '';
+  position: absolute;
+  top: -0.55rem;
+  left: 2.1rem;
+  width: 2.3rem;
+  height: 0.55rem;
+  background: var(--ember);
+  border-radius: 3px 3px 0 0;
+}
+
+.about-copy-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.56rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  border-bottom: 1px solid var(--bone-line);
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.35rem;
+}
+
+/* oversized serif drop cap opens the story */
+.scrub--lead::first-letter {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 3em;
+  line-height: 0.82;
+  float: left;
+  padding: 0.06em 0.14em 0 0;
+  color: var(--ember-deep);
+}
+
+.about-copy-sign {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--bone-dim);
+  justify-self: end;
+  margin-top: 0.15rem;
+}
+
+@media (max-width: 720px) {
+  .about-copy {
+    padding: 1.3rem 1.15rem 1.05rem;
+    rotate: 0deg;
+  }
+
+  .about-copy::before {
+    left: 1.15rem;
+  }
+}
+
+/* Full-height rail down the section's right margin, outside the centred 72rem
+   content column, so the bird never overlaps the copy, gallery or pillars.
+   It's the sticky bird's containing block: the bird can only travel within it,
+   which is what releases the bird once the section scrolls past. */
+.about-bird-rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: clamp(0.75rem, 4vw, 5rem);
+  width: clamp(8rem, 11vw, 12.5rem);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Sticky so the bird holds a fixed spot on screen while the About section
+   scrolls beneath it, then rides back up with the section at its end — pinned
+   for the section, released after it. scaleX(-1) faces it left, toward the text. */
+.about-bird {
+  position: sticky;
+  top: 40vh;
+  width: 100%;
+  aspect-ratio: 1;
+  transform: scaleX(-1);
+}
+
+/* Below this the content column fills the width, so there's no rail to fly down.
+   The bird keeps its cameo in the empty space beside the section eyebrow. */
+@media (max-width: 1100px) {
+  .about-bird-rail {
+    top: 8vh;
+    bottom: auto;
+    height: clamp(4.5rem, 16vw, 7rem);
+    right: var(--pad);
+    width: clamp(4.5rem, 16vw, 7rem);
+  }
+
+  .about-bird {
+    position: absolute;
+    inset: 0;
+    top: 0;
+    /* keep it facing back into the copy, as on desktop */
+    transform: scaleX(-1);
+    opacity: 0.85;
+  }
+}
+
+.pillars {
+  margin-top: 4.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: 1.4rem;
+}
+
+.pillar {
+  padding: 2rem 1.8rem;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.pillar:nth-child(2) {
+  animation-delay: -2.7s;
+}
+
+.pillar:nth-child(3) {
+  animation-delay: -5.4s;
+}
+
+.pillar:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 70px rgba(10, 12, 8, 0.5), 0 0 34px rgba(217, 230, 201, 0.06);
+}
+
+.pillar-tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.26em;
+  color: var(--clay);
+  margin-bottom: 1rem;
+}
+
+.pillar-title {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 500;
+  margin-bottom: 0.8rem;
+  color: var(--ink);
+}
+
+.pillar-body {
+  font-size: 0.92rem;
+  color: var(--dim);
+}
+
+.about-personal {
+  margin-top: 4rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+  border-left: 2px solid var(--clay);
+  padding-left: 1.1rem;
+  max-width: 34rem;
+  line-height: 2;
+}
+
+/* ─── projects (sticky horizontal on desktop) ─── */
+
+.projects {
+  position: relative;
+  height: calc(100vh + 340vh);
+}
+
+.projects-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.projects-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0 var(--pad);
+  margin-bottom: 2.6rem;
+}
+
+.projects-header .eyebrow {
+  margin-bottom: 0;
+}
+
+.projects-counter {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: var(--clay);
+}
+
+.projects-track {
+  display: flex;
+  gap: 2rem;
+  padding: 0 var(--pad);
+  will-change: transform;
+}
+
+.project-card {
+  flex: 0 0 auto;
+  /* wider than before — the card now carries a 16:10 proof frame */
+  width: clamp(20rem, 42vw, 34rem);
+  padding: 1.7rem 1.8rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  transform-style: preserve-3d;
+  transition: box-shadow 0.35s ease;
+}
+
+.project-card:hover {
+  box-shadow: 0 34px 80px rgba(10, 12, 8, 0.55), 0 0 40px rgba(217, 230, 201, 0.07);
+}
+
+/* layered depth: content floats at different heights when the card tilts */
+.project-card .project-top {
+  transform: translateZ(14px);
+}
+
+.project-card .project-metric {
+  transform: translateZ(48px);
+}
+
+.project-card .project-title {
+  transform: translateZ(32px);
+}
+
+.project-card .project-impact {
+  transform: translateZ(18px);
+}
+
+.project-card .project-stack {
+  transform: translateZ(28px);
+}
+
+/* desynchronise the border sweeps */
+.project-card:nth-child(2n) {
+  animation-delay: -2.7s;
+}
+
+.project-card:nth-child(3n) {
+  animation-delay: -5.4s;
+}
+
+.project-top {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.1rem;
+}
+
+.project-index {
+  font-size: 0.8rem;
+  color: var(--faint);
+}
+
+.project-sector {
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  color: var(--clay);
+}
+
+.project-metric {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 2.8vw, 2.5rem);
+  font-weight: 500;
+  color: var(--glow);
+  line-height: 1;
+  margin-bottom: 0.4rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.project-metric-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  color: var(--faint);
+  margin-top: 0.45rem;
+  text-transform: uppercase;
+}
+
+.project-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+  font-weight: 500;
+  color: var(--ink);
+  margin: 0 0 0.75rem;
+}
+
+.project-impact {
+  font-size: 0.92rem;
+  color: var(--dim);
+  flex: 1;
+}
+
+.project-stack {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 1.1rem;
+}
+
+/* ── proof shot: the build itself, in browser chrome ── */
+
+.shot {
+  margin: 0 0 1.1rem;
+}
+
+.shot-chrome {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line-soft);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  background: rgba(20, 23, 17, 0.75);
+}
+
+.shot-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--line);
+  flex: none;
+}
+
+.shot-url {
+  margin-left: 0.5rem;
+  font-size: 0.52rem;
+  letter-spacing: 0.14em;
+  color: var(--faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shot-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid var(--line-soft);
+  border-radius: 0 0 10px 10px;
+  background: linear-gradient(150deg, rgba(45, 52, 40, 0.9), rgba(24, 28, 20, 0.95));
+}
+
+.shot-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.project-card:hover .shot-img {
+  transform: scale(1.04);
+}
+
+/* Placeholder while no image is set: a schematic of an interface, so the card
+   still reads as finished. Replaced the moment `shot` is filled in. */
+.shot-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.1rem;
+  padding: 1.4rem 1.5rem;
+}
+
+.shot-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.shot-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.4fr;
+  gap: 0.6rem;
+  align-items: end;
+}
+
+.shot-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(233, 230, 218, 0.14);
+  width: 62%;
+}
+
+.shot-bar--wide {
+  width: 88%;
+  background: rgba(233, 230, 218, 0.2);
+}
+
+.shot-bar--short {
+  width: 40%;
+}
+
+.shot-block {
+  height: 2.4rem;
+  border-radius: 6px;
+  background: rgba(233, 230, 218, 0.07);
+  border: 1px solid var(--line-soft);
+}
+
+.shot-block--tall {
+  height: 3.6rem;
+  background: rgba(224, 149, 74, 0.09);
+  border-color: rgba(224, 149, 74, 0.16);
+}
+
+/* a slow light pass, so the frame is never fully static */
+.shot-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 38%, rgba(217, 230, 201, 0.07) 50%, transparent 62%);
+  background-size: 260% 260%;
+  animation: sheenPan 7s ease-in-out infinite alternate;
+}
+
+.shot-cap {
+  margin-top: 0.7rem;
+  font-size: 0.54rem;
+  letter-spacing: 0.16em;
+  color: var(--faint);
+}
+
+.shot-nda {
+  color: var(--clay);
+}
+
+/* ── came → shipped, the same spine the hero ledger uses ── */
+
+.project-arc {
+  flex: 1;
+  margin: 0 0 1rem;
+  display: grid;
+  grid-template-columns: 4.4rem 1fr;
+  gap: 0.45rem 0.9rem;
+  align-items: baseline;
+}
+
+.project-arc dt {
+  font-size: 0.54rem;
+  letter-spacing: 0.2em;
+  color: var(--faint);
+}
+
+.project-arc dd {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--dim);
+}
+
+.project-arc-out {
+  color: var(--ink);
+}
+
+.project-role {
+  font-size: 0.55rem;
+  letter-spacing: 0.16em;
+  color: var(--faint);
+  margin-top: 0.7rem;
+}
+
+.project-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.3rem;
+  margin-top: 1.1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line-soft);
+}
+
+.project-link {
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-decoration: none;
+  color: var(--glow);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 0.2rem;
+  transition: border-color 0.25s ease, color 0.25s ease;
+}
+
+.project-link:hover {
+  border-color: var(--glow);
+}
+
+.project-link--alt {
+  color: var(--dim);
+}
+
+.project-link--alt:hover {
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.project-link--none {
+  color: var(--faint);
+  border-bottom: 1px dashed var(--line-soft);
+  cursor: default;
+}
+
+/* ── client testimonial, closing the track ── */
+
+/* Wider than the work cards: this one holds a landscape screenshot of dense
+   text, and at the standard 34rem the review is too small to read. The break
+   in rhythm also marks it as a different kind of card. */
+.project-card--quote {
+  width: clamp(20rem, 62vw, 50rem);
+  justify-content: center;
+}
+
+.quote-mark {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex: none;
+  color: #6fda44;
+}
+
+/* the review as it actually appears on Upwork, with the mark laid over it.
+   Shrink-wraps the image so the badge pins to the shot, not the flex box. */
+.quote-shot {
+  position: relative;
+  margin: 0;
+}
+
+.quote-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+  border: 1px solid var(--line-soft);
+  /* the capture is neutral grey; a touch of warmth settles it into the page */
+  filter: saturate(0.92) contrast(1.02);
+}
+
+.quote-open {
+  display: block;
+  border-radius: 12px;
+}
+
+.quote-open:hover .quote-img {
+  border-color: var(--line);
+  filter: saturate(1) contrast(1.04);
+}
+
+/* sits in the band added to the bottom of the capture, so it covers nothing.
+   Only ever set `bottom` here — see the 900px override. */
+.quote-badge {
+  position: absolute;
+  right: 3.2%;
+  bottom: 2.2%;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.42rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  color: var(--ink);
+  background: rgba(18, 21, 15, 0.82);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* the tap hint only earns its place where the review is too small to read */
+.quote-tap {
+  display: none;
+  margin-top: 0.7rem;
+  font-size: 0.54rem;
+  letter-spacing: 0.16em;
+  color: var(--faint);
+}
+
+.quote-link {
+  display: inline-block;
+  margin-top: 1.4rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-decoration: none;
+  color: var(--glow);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.2rem;
+  transition: border-color 0.25s ease;
+}
+
+.quote-link:hover {
+  border-color: var(--glow);
+}
+
+/* depth layers for the new card content when it tilts */
+.project-card .shot {
+  transform: translateZ(38px);
+}
+
+.project-card .project-arc {
+  transform: translateZ(22px);
+}
+
+.project-card .project-links {
+  transform: translateZ(26px);
+}
+
+.project-card .quote-shot {
+  transform: translateZ(40px);
+}
+
+/* ─── skills ─── */
+
+.skills {
+  min-height: 120vh;
+  display: flex;
+  align-items: center;
+}
+
+.skills-headline {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.9rem, 4.2vw, 3.4rem);
+  margin-bottom: 3.4rem;
+  color: var(--ink);
+}
+
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 2.6rem 2rem;
+}
+
+.skill-group-name {
+  font-size: 0.64rem;
+  letter-spacing: 0.3em;
+  color: var(--clay);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.tech-tiles {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.tech-tile {
+  --angle: 40deg;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.72rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 14px;
+  background:
+    linear-gradient(165deg, rgba(42, 48, 37, 0.9), rgba(29, 33, 26, 0.75)) padding-box,
+    conic-gradient(
+        from var(--angle),
+        rgba(233, 230, 218, 0.13) 0deg,
+        rgba(233, 230, 218, 0.13) 300deg,
+        rgba(217, 230, 201, 0.6) 335deg,
+        rgba(233, 230, 218, 0.13) 360deg
+      )
+      border-box;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+  animation: tileFloat 5.5s ease-in-out infinite alternate;
+  will-change: transform, translate;
+}
+
+.tech-tile:hover {
+  animation: tileFloat 5.5s ease-in-out infinite alternate, borderSpin 2.4s linear infinite;
+}
+
+@keyframes tileFloat {
+  from {
+    translate: 0 2px;
+  }
+  to {
+    translate: 0 -4px;
+  }
+}
+
+.tech-tile::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(140px circle at var(--shine-x, 50%) var(--shine-y, 50%), rgba(217, 230, 201, 0.14), transparent 65%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.tech-tile:hover {
+  box-shadow: 0 14px 34px rgba(10, 12, 8, 0.45);
+}
+
+.tech-tile:hover::after {
+  opacity: 1;
+}
+
+.tech-icon {
+  width: 21px;
+  height: 21px;
+  color: var(--clay);
+  flex: none;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.tech-tile:hover .tech-icon {
+  color: var(--glow);
+  transform: scale(1.12) rotate(-4deg);
+}
+
+.tech-glyph {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--clay);
+  width: 21px;
+  text-align: center;
+  flex: none;
+  transition: color 0.3s ease;
+}
+
+.tech-tile:hover .tech-glyph {
+  color: var(--glow);
+}
+
+.tech-name {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+}
+
+/* ─── experience ─── */
+
+.experience {
+  min-height: 150vh;
+}
+
+.xp-timeline {
+  position: relative;
+  display: grid;
+  gap: 3.2rem;
+  padding-left: 1.6rem;
+  border-left: 1px solid var(--line-soft);
+}
+
+.xp-line {
+  position: absolute;
+  left: -1px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--glow), var(--clay));
+  transform-origin: top;
+  transform: scaleY(0);
+  box-shadow: 0 0 14px rgba(217, 230, 201, 0.35);
+}
+
+.xp-entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: 11rem 1fr;
+  gap: 2rem;
+}
+
+.xp-entry::before {
+  content: '';
+  position: absolute;
+  left: calc(-1.6rem - 4px);
+  top: 0.5rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--glow);
+  box-shadow: 0 0 12px rgba(217, 230, 201, 0.5);
+}
+
+.xp-period {
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  color: var(--clay);
+}
+
+.xp-sector {
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  color: var(--faint);
+  margin-top: 0.5rem;
+}
+
+.xp-role {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.xp-company {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--dim);
+  margin: 0.35rem 0 1rem;
+}
+
+.xp-points {
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+  color: var(--dim);
+  font-size: 0.92rem;
+}
+
+.xp-points li::before {
+  content: '— ';
+  color: var(--clay);
+}
+
+/* ─── contact ─── */
+
+.contact {
+  min-height: 110vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.contact-inner {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.contact-headline {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2.4rem, 6.5vw, 5rem);
+  color: var(--ink);
+  margin-bottom: 1.6rem;
+  line-height: 1.06;
+}
+
+.contact-sub {
+  max-width: 34rem;
+  color: var(--dim);
+  margin-bottom: 2.8rem;
+}
+
+.contact-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2.6rem;
+}
+
+.btn-primary {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--bg);
+  background: var(--glow);
+  padding: 1.05rem 2.4rem;
+  border-radius: 999px;
+  box-shadow: 0 8px 40px rgba(217, 230, 201, 0.25);
+  transition: background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.btn-primary:hover {
+  background: #eef6e2;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 50px rgba(217, 230, 201, 0.4);
+}
+
+.contact-email {
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  color: var(--dim);
+  text-transform: none;
+  font-weight: 500;
+}
+
+.contact-links {
+  list-style: none;
+  display: flex;
+  gap: 2.2rem;
+  margin-bottom: 2rem;
+}
+
+.contact-link {
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-decoration: none;
+  color: var(--dim);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.3rem;
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+
+.contact-link:hover {
+  color: var(--glow);
+  border-color: var(--glow);
+}
+
+.contact-note {
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  color: var(--clay);
+}
+
+/* ─── footer (full) ─── */
+
+.footer {
+  margin-top: 14vh;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 3.5rem;
+  text-align: left;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr;
+  gap: 3rem;
+  padding-bottom: 3rem;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.1rem;
+}
+
+.footer-blurb {
+  font-size: 0.9rem;
+  color: var(--dim);
+  max-width: 24rem;
+}
+
+.footer-status {
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  color: var(--clay);
+}
+
+.footer-col-title {
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  color: var(--faint);
+  margin-bottom: 1.1rem;
+}
+
+.footer-col ul {
+  list-style: none;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.footer-col a {
+  text-decoration: none;
+  color: var(--dim);
+  font-size: 0.92rem;
+  transition: color 0.25s ease, padding-left 0.25s ease;
+}
+
+.footer-col a:hover {
+  color: var(--glow);
+  padding-left: 0.35rem;
+}
+
+.footer-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 1.4rem;
+  padding-bottom: 0.4rem;
+  color: var(--faint);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+}
+
+.footer-top {
+  color: var(--dim);
+  text-decoration: none;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+.footer-top:hover {
+  color: var(--glow);
+  transform: translateY(-2px);
+}
+
+/* ─── responsive ─── */
+
+@media (max-width: 900px) {
+  .nav-links {
+    display: none;
+  }
+
+  /* stronger nav backdrop on mobile — content scrolls right under the logo */
+  .nav {
+    background: linear-gradient(to bottom, rgba(29, 33, 26, 0.92) 60%, rgba(29, 33, 26, 0.4));
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding-block: 0.85rem;
+  }
+
+  /* 16px+ inputs stop iOS Safari from zooming the page on focus */
+  .brief-field input,
+  .brief-field textarea {
+    font-size: 16px;
+  }
+
+  .hero {
+    min-height: 115vh;
+  }
+
+  /* NB: hero h1 sizing lives in the LAST 900px block near the end of this
+     file — a duplicate here would be dead code. */
+
+  .stats {
+    height: 260vh;
+  }
+
+  .stats-sticky {
+    padding-top: 11vh;
+    padding-bottom: 4vh;
+  }
+
+  /* too little width to hang the copy off each tower: numbers only up top… */
+  .stat-plaques.is-live .stat-plaque {
+    padding: 0.32rem 0.5rem calc(0.32rem + var(--leader));
+    border-radius: 10px;
+    /* backdrop blur over the canvas is the expensive bit on phones */
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: linear-gradient(180deg, rgba(29, 33, 26, 0.74), rgba(29, 33, 26, 0.5));
+  }
+
+  .stat-plaque {
+    --leader: 18px;
+  }
+
+  .stat-plaques.is-live .stat-plaque-value {
+    font-size: clamp(0.78rem, 3.4vw, 1.1rem);
+  }
+
+  /* …and the copy moves into the legend (kept in the a11y tree up top) */
+  .stat-plaques.is-live .stat-plaque-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .stats-legend {
+    display: grid;
+  }
+
+  .stat-plaques:not(.is-live) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.6rem 1.2rem;
+  }
+
+  /* projects: vertical stack, no sticky scroll-jack */
+  .projects {
+    height: auto;
+    padding: 14vh 0;
+  }
+
+  .projects-sticky {
+    position: static;
+    height: auto;
+    overflow: visible;
+    display: block;
+  }
+
+  .projects-header {
+    margin-bottom: 2rem;
+  }
+
+  .projects-counter {
+    display: none;
+  }
+
+  .projects-track {
+    flex-direction: column;
+    transform: none !important;
+    gap: 1.4rem;
+  }
+
+  .project-card {
+    width: 100%;
+    padding: 1.5rem 1.4rem 1.4rem;
+  }
+
+  .project-arc {
+    grid-template-columns: 3.5rem 1fr;
+    gap: 0.45rem 0.7rem;
+  }
+
+  .project-arc dd {
+    font-size: 0.84rem;
+  }
+
+  .project-links {
+    gap: 0.4rem 1rem;
+    margin-top: 1.2rem;
+    padding-top: 1rem;
+  }
+
+  .quote-tap {
+    display: block;
+  }
+
+  /* top MUST stay auto — setting both top and bottom stretches an absolutely
+     positioned box to fill the gap, which turns the pill into a big circle */
+  .quote-badge {
+    top: auto;
+    right: 2.5%;
+    bottom: 2%;
+    padding: 0.26rem 0.5rem;
+    font-size: 0.44rem;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  /* the annotation pills crowd a phone-width frame */
+  .gal-notes {
+    display: none;
+  }
+
+  .gal-overlay {
+    padding: 3rem 1rem 0.9rem;
+  }
+
+  .gal-text {
+    font-size: 0.82rem;
+  }
+
+  .xp-entry {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+
+  .footer {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.6rem;
+  }
+}
+
+/* ─── reduced motion ─── */
+
+@media (prefers-reduced-motion: reduce) {
+  .status-dot,
+  .hero-cue-line,
+  .preloader-mark {
+    animation: none;
+  }
+
+  .hero-el,
+  .reveal,
+  .stat,
+  .skill-group,
+  .xp-entry,
+  .contact-el {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* keyboard focus */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--glow);
+  outline-offset: 3px;
+}
+
+/* ─── 3D logo ─── */
+
+/* the circular logo badge that replaced the extruded S.A text mark */
+.logo-mark {
+  display: inline-block;
+  border-radius: 50%;
+  object-fit: cover;
+  vertical-align: middle;
+  box-shadow: 0 0 0 1px var(--line), 0 4px 14px -6px rgba(0, 0, 0, 0.55);
+  transition: rotate 0.5s ease;
+}
+
+.logo-mark:hover {
+  rotate: -8deg;
+}
+
+.logo-mark--nav {
+  width: 2.3rem;
+  height: 2.3rem;
+}
+
+.logo-mark--footer {
+  width: 3.2rem;
+  height: 3.2rem;
+}
+
+.logo-mark--loader {
+  width: 5.4rem;
+  height: 5.4rem;
+}
+
+.logo3d {
+  display: inline-block;
+  perspective: 320px;
+}
+
+.logo3d-pivot {
+  display: inline-block;
+  position: relative;
+  transform-style: preserve-3d;
+  animation: logoSway 7s ease-in-out infinite alternate;
+  transition: transform 0.6s cubic-bezier(0.2, 1.2, 0.35, 1);
+}
+
+.logo3d:hover .logo3d-pivot {
+  transform: rotateY(24deg) rotateX(-8deg) scale(1.08);
+}
+
+@keyframes logoSway {
+  from {
+    transform: rotateY(-14deg) rotateX(5deg);
+  }
+  to {
+    transform: rotateY(14deg) rotateX(-5deg);
+  }
+}
+
+.logo3d-face,
+.logo3d-depth::before {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 600;
+  font-variation-settings: 'SOFT' 60, 'WONK' 1;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.logo3d-face {
+  position: relative;
+  display: inline-block;
+  background: linear-gradient(115deg, #f4f0dc 20%, var(--glow) 45%, #9fb188 60%, #f4f0dc 85%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: logoSheen 5.5s ease-in-out infinite;
+  transform: translateZ(6px);
+}
+
+@keyframes logoSheen {
+  0%, 100% {
+    background-position: 0% 0;
+  }
+  50% {
+    background-position: 100% 0;
+  }
+}
+
+.logo3d-depth {
+  position: absolute;
+  inset: 0;
+}
+
+.logo3d-depth::before {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  color: #2c3325;
+  transform: translateZ(-1px);
+  text-shadow:
+    0.5px 0.6px 0 #333a2b,
+    1px 1.2px 0 #2f362a,
+    1.5px 1.8px 0 #2a3126,
+    2px 2.4px 0 #262c22,
+    2.5px 3px 0 #21261d,
+    3px 3.6px 0 #1b2018,
+    4px 5px 12px rgba(0, 0, 0, 0.55);
+}
+
+.logo3d--nav .logo3d-face,
+.logo3d--nav .logo3d-depth::before {
+  font-size: 1.5rem;
+}
+
+.logo3d--footer .logo3d-face,
+.logo3d--footer .logo3d-depth::before {
+  font-size: 2.3rem;
+}
+
+.logo3d--loader .logo3d-face,
+.logo3d--loader .logo3d-depth::before {
+  font-size: 4.2rem;
+}
+
+.preloader-mark {
+  animation: markBreath 2.4s ease-in-out infinite;
+}
+
+/* ─── about: word scrub + vista ─── */
+
+.scrub .w {
+  transition: none;
+}
+
+.about-copy .scrub {
+  font-size: clamp(0.9rem, 1.25vw, 1rem);
+  line-height: 1.65;
+}
+
+/* ─── about gallery: cube-strip transitions ─── */
+
+.gallery {
+  margin: 4.5rem 0 0;
+  padding: 0.9rem 0.9rem 0.5rem;
+}
+
+.gal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.7rem 0.4rem 1rem;
+}
+
+.gal-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-variation-settings: 'SOFT' 45, 'WONK' 1;
+  font-size: clamp(1.25rem, 2.2vw, 1.7rem);
+  color: var(--ink);
+}
+
+.gal-title .accent {
+  font-variation-settings: 'SOFT' 80, 'WONK' 1;
+}
+
+.gal-count {
+  font-size: 0.66rem;
+  letter-spacing: 0.3em;
+  color: var(--clay);
+}
+
+.gal-stage {
+  --gal-d: 400px;
+  position: relative;
+  display: flex;
+  aspect-ratio: 16 / 9;
+  perspective: 1400px;
+  border-radius: calc(var(--radius) - 6px);
+}
+
+.gal-strip {
+  flex: 1;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+/* overlap strips a hair so seams never show on bright images */
+.gal-strip:not(:first-child) {
+  margin-left: -1px;
+}
+
+.gal-strip-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform: translateZ(calc(var(--gal-d) / -2));
+  will-change: transform;
+}
+
+/* Inlined 24px thumbnail, scaled up under the strips so the frame is never
+   empty while the real photo decodes. The stage itself can't clip (3D needs
+   overflow: visible), so the blur is clipped by this wrapper instead. */
+.gal-lqip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: calc(var(--radius) - 6px);
+}
+
+.gal-lqip::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--lqip);
+  background-size: cover;
+  background-position: center;
+  /* Overscaled so the blur's soft edge never reaches the clipped border. */
+  transform: scale(1.12);
+  filter: blur(18px) saturate(1.1);
+  opacity: 0.9;
+}
+
+.gal-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  background-repeat: no-repeat;
+}
+
+.gal-face--front {
+  transform: translateZ(calc(var(--gal-d) / 2));
+}
+
+/* round only the outer corners of the whole image */
+.gal-strip:first-child .gal-face {
+  border-top-left-radius: calc(var(--radius) - 6px);
+  border-bottom-left-radius: calc(var(--radius) - 6px);
+}
+
+.gal-strip:last-child .gal-face {
+  border-top-right-radius: calc(var(--radius) - 6px);
+  border-bottom-right-radius: calc(var(--radius) - 6px);
+}
+
+/* ── field-note annotations over the frame ──
+   Above the strips, never takes the pointer, so the 3D flip is untouched. */
+.gal-notes {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.gal-note {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  /* the anchor point is the pin, so pull the row onto it vertically */
+  transform: translateY(-50%);
+  animation: noteIn 0.7s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  animation-delay: 0.5s;
+}
+
+.gal-note--left {
+  flex-direction: row-reverse;
+  transform: translate(-100%, -50%);
+}
+
+.gal-note-pin {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--glow);
+  box-shadow: 0 0 0 3px rgba(217, 230, 201, 0.18), 0 0 12px rgba(217, 230, 201, 0.7);
+}
+
+.gal-note-line {
+  width: clamp(1.4rem, 3.5vw, 3rem);
+  height: 1px;
+  flex: none;
+  background: linear-gradient(90deg, rgba(217, 230, 201, 0.75), rgba(217, 230, 201, 0.15));
+  transform-origin: left center;
+  animation: noteLine 0.6s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  animation-delay: 0.55s;
+}
+
+.gal-note--left .gal-note-line {
+  transform-origin: right center;
+  background: linear-gradient(270deg, rgba(217, 230, 201, 0.75), rgba(217, 230, 201, 0.15));
+}
+
+.gal-note-label {
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  white-space: nowrap;
+  color: var(--ink);
+  background: rgba(20, 23, 17, 0.62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  padding: 0.28rem 0.6rem;
+}
+
+@keyframes noteIn {
+  from {
+    opacity: 0;
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes noteLine {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ── caption, set over the image on a scrim ── */
+.gal-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 4;
+  padding: 4.5rem 1.4rem 1.2rem;
+  border-radius: 0 0 calc(var(--radius) - 6px) calc(var(--radius) - 6px);
+  background: linear-gradient(to top, rgba(14, 16, 11, 0.92) 12%, rgba(14, 16, 11, 0.55) 48%, transparent 100%);
+  pointer-events: none;
+}
+
+.gal-tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.28em;
+  color: var(--glow);
+  margin-bottom: 0.4rem;
+  animation: statIn 0.45s ease both;
+}
+
+.gal-text {
+  font-size: clamp(0.86rem, 1.15vw, 1.02rem);
+  line-height: 1.5;
+  max-width: 44ch;
+  color: var(--ink);
+  animation: statIn 0.45s ease both;
+  animation-delay: 0.08s;
+}
+
+.gal-foot {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 0.95rem 0.4rem 0.45rem;
+}
+
+.gal-dots {
+  display: flex;
+  gap: 0.55rem;
+}
+
+/* autoplay clock — restarts on every frame change via its React key */
+.gal-progress {
+  flex: 1;
+  height: 1px;
+  background: var(--line-soft);
+  overflow: hidden;
+}
+
+.gal-progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--glow);
+  transform-origin: left;
+  opacity: 0.55;
+  animation: galProgress linear both;
+}
+
+@keyframes galProgress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.gal-dot {
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.gal-dot:hover {
+  background: var(--dim);
+}
+
+.gal-dot.is-active {
+  background: var(--glow);
+  transform: scale(1.25);
+  box-shadow: 0 0 10px rgba(217, 230, 201, 0.5);
+}
+
+/* ─── contact: booking, copy email, form ─── */
+
+.copy-email {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 1px dashed var(--line);
+  padding: 0.35rem 0.1rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: var(--dim);
+  cursor: pointer;
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+
+.copy-email:hover {
+  color: var(--glow);
+  border-color: var(--glow);
+}
+
+/* ─── reviews: the receipts chapter, on the story's bone canvas ─── */
+
+.reviews-headline {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-variation-settings: 'SOFT' 45, 'WONK' 1;
+  font-size: clamp(2rem, 4.6vw, 3.6rem);
+  line-height: 1.12;
+  max-width: 46rem;
+  margin-bottom: 2.6rem;
+  color: var(--ink);
+}
+
+.reviews-canvas {
+  position: relative;
+  width: min(44rem, 100%);
+  margin-inline: auto;
+  display: grid;
+  gap: 1rem;
+  background: var(--bone);
+  color: var(--bone-ink);
+  padding: 1.7rem 2rem 1.4rem;
+  border-radius: 10px;
+  rotate: 0.5deg;
+  box-shadow:
+    0 34px 70px -24px rgba(0, 0, 0, 0.6),
+    0 10px 24px -10px rgba(0, 0, 0, 0.45);
+}
+
+/* ember bookmark tab, same as the story page's */
+.reviews-canvas::before {
+  content: '';
+  position: absolute;
+  top: -0.55rem;
+  right: 2.1rem;
+  width: 2.3rem;
+  height: 0.55rem;
+  background: var(--ember);
+  border-radius: 3px 3px 0 0;
+}
+
+.reviews-canvas-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.56rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  border-bottom: 1px solid var(--bone-line);
+  padding-bottom: 0.75rem;
+}
+
+.reviews-pull {
+  font-family: var(--font-display);
+  font-variation-settings: 'SOFT' 30, 'WONK' 0;
+  font-size: clamp(1.1rem, 1.9vw, 1.45rem);
+  line-height: 1.4;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.reviews-pull cite {
+  font-style: normal;
+  font-size: 0.56rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+
+.reviews-pull cite a {
+  color: var(--ember-deep);
+  text-decoration: none;
+}
+
+.reviews-pull cite a:hover {
+  text-decoration: underline;
+}
+
+.reviews-open {
+  display: block;
+  border: 1px solid var(--bone-line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.reviews-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: opacity 0.3s ease;
+}
+
+.reviews-open:hover .reviews-img {
+  opacity: 0.92;
+}
+
+.reviews-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  color: var(--bone-dim);
+}
+
+.reviews-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  text-transform: uppercase;
+}
+
+.reviews-mark {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: currentColor;
+}
+
+.reviews-foot a {
+  color: var(--bone-dim);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
+}
+
+.reviews-foot a:hover {
+  color: var(--bone-ink);
+}
+
+@media (max-width: 720px) {
+  .reviews-canvas {
+    padding: 1.2rem 1.1rem 1rem;
+    rotate: 0deg;
+  }
+
+  .reviews-canvas::before {
+    right: 1.1rem;
+  }
+}
+
+/* ── story layout: the print beside the log on desktop, above it on mobile ── */
+.story-grid {
+  display: grid;
+  gap: 2rem;
+}
+
+/* the FamPay print: a bone-bordered photograph, same paper family as the
+   story page, tilted the other way so the pair reads as pinned together */
+.story-exhibit {
+  position: relative;
+  width: min(30rem, 100%);
+  background: var(--bone);
+  padding: 0.7rem 0.7rem 0.85rem;
+  border-radius: 8px;
+  rotate: 1deg;
+  box-shadow:
+    0 34px 70px -24px rgba(0, 0, 0, 0.6),
+    0 10px 24px -10px rgba(0, 0, 0, 0.45);
+}
+
+/* ember tape holding the print up, echoing the story canvas's bookmark */
+.story-exhibit::before {
+  content: '';
+  position: absolute;
+  top: -0.55rem;
+  left: 50%;
+  translate: -50% 0;
+  width: 2.6rem;
+  height: 0.55rem;
+  background: var(--ember);
+  border-radius: 3px;
+}
+
+.story-exhibit img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.story-exhibit figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding-top: 0.7rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-ink);
+}
+
+.story-exhibit-tag {
+  color: var(--bone-dim);
+  white-space: nowrap;
+}
+
+@media (min-width: 1024px) {
+  .story-grid {
+    grid-template-columns: minmax(0, 44rem) minmax(0, 1fr);
+    gap: 3rem;
+    align-items: start;
+  }
+
+  /* right column on desktop; sticks while the log scrolls */
+  .story-exhibit {
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    top: 7rem;
+  }
+
+  .story-grid .about-copy {
+    grid-column: 1;
+    grid-row: 1;
+  }
+}
+
+/* ── the end-to-end cycle: one engineer, every stage of a product ── */
+.cycle {
+  margin-top: 5.5rem;
+}
+
+.cycle-headline {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-variation-settings: 'SOFT' 45, 'WONK' 1;
+  font-size: clamp(1.7rem, 3.4vw, 2.6rem);
+  line-height: 1.15;
+  color: var(--ink);
+}
+
+.cycle-sub {
+  margin-top: 0.7rem;
+  max-width: 40rem;
+  color: var(--dim);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* phase accents: Build / Automate / Grow */
+.phase-0 { --phase: var(--ember); }
+.phase-1 { --phase: var(--clay); }
+.phase-2 { --phase: var(--ink); }
+
+/* ── the rotating 3D wheel — every viewport, radius clamped to fit ── */
+.cycle3d {
+  display: block;
+}
+
+.cycle3d-scene {
+  /* shrinks on phones so the widest chip still clears the screen edges */
+  --cycle-r: min(19rem, calc(50vw - 5.5rem));
+  position: relative;
+  height: calc(var(--cycle-r) * 1.05 + 11rem);
+  margin: 1.5rem auto 0;
+  perspective: 1050px;
+}
+
+/* soft pool of dark behind the wheel so chips read over the busy valley */
+.cycle3d-scene::before {
+  content: '';
+  position: absolute;
+  inset: -6% -14%;
+  background: radial-gradient(
+    ellipse 60% 55% at 50% 48%,
+    rgba(16, 20, 14, 0.72),
+    rgba(16, 20, 14, 0.35) 55%,
+    transparent 78%
+  );
+  pointer-events: none;
+}
+
+/* a dimensionless pivot at the scene centre; everything hangs off it */
+.cycle3d-wheel {
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* rings + spokes live IN the wheel plane, so they tilt and turn with it */
+.cycle3d-ring {
+  position: absolute;
+  top: calc(var(--cycle-r) * -1);
+  left: calc(var(--cycle-r) * -1);
+  width: calc(var(--cycle-r) * 2);
+  height: calc(var(--cycle-r) * 2);
+  border: 1px dashed rgba(233, 230, 218, 0.22);
+  border-radius: 50%;
+}
+
+.cycle3d-ring--inner {
+  scale: 0.55;
+  border-color: rgba(233, 230, 218, 0.1);
+  border-style: solid;
+}
+
+.cycle3d-spoke {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--cycle-r);
+  height: 1px;
+  transform-origin: 0 0;
+  background: linear-gradient(90deg, transparent 18%, rgba(233, 230, 218, 0.14) 85%);
+}
+
+/* flat overlay sharing the wheel's centre; chips are positioned by JS */
+.cycle3d-chips {
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  width: 0;
+  height: 0;
+}
+
+.cycle3d-bill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  will-change: transform, opacity;
+}
+
+.cycle3d-chip {
+  position: absolute;
+  translate: -50% -50%;
+  display: block;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 0.48rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(24, 28, 20, 0.88);
+  color: var(--dim);
+  transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, scale 0.4s ease;
+}
+
+/* the front slot always burns ember, whatever the phase */
+.cycle3d-chip.is-front {
+  color: var(--ink);
+  border-color: var(--ember);
+  box-shadow:
+    0 0 20px -4px var(--ember),
+    0 0 44px -10px var(--ember-glow),
+    0 0 44px -10px var(--ember);
+  scale: 1.12;
+}
+
+/* fixed centre readout — announces whatever the wheel brings to the front */
+.cycle3d-readout {
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  translate: -50% -50%;
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  text-align: center;
+  pointer-events: none;
+}
+
+.cycle3d-readout-phase {
+  font-size: 0.56rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--phase);
+}
+
+.cycle3d-readout-stage {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-variation-settings: 'SOFT' 30, 'WONK' 0;
+  font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  line-height: 1.1;
+  color: var(--ink);
+  animation: cycleReadout 0.55s ease both;
+}
+
+.cycle3d-readout-count {
+  font-size: 0.56rem;
+  letter-spacing: 0.26em;
+  color: var(--faint);
+}
+
+@keyframes cycleReadout {
+  from {
+    opacity: 0;
+    translate: 0 8px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cycle3d-readout-stage {
+    animation: none;
+  }
+}
+
+.cycle-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.8rem 2rem;
+  margin-top: 2rem;
+  list-style: none;
+  padding: 0;
+}
+
+.cycle-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.cycle-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--phase);
+}
+
+/* tighter chips on phones, and the readout lifts clear of the small ring */
+@media (max-width: 1023px) {
+  .cycle3d-chip {
+    font-size: 0.48rem;
+    letter-spacing: 0.1em;
+    padding: 0.35rem 0.55rem;
+  }
+
+  .cycle3d-scene {
+    height: calc(var(--cycle-r) * 1.05 + 14rem);
+  }
+
+  .cycle3d-wheel,
+  .cycle3d-chips {
+    top: 62%;
+  }
+
+  .cycle3d-readout {
+    top: 22%;
+  }
+
+  .cycle3d-readout-stage {
+    font-size: 1.2rem;
+  }
+
+  .cycle3d-readout-phase,
+  .cycle3d-readout-count {
+    font-size: 0.5rem;
+  }
+}
+
+.cycle-loop {
+  margin-top: 1.8rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+  text-align: center;
+}
+
+
+/* ── "view all" expander closing the collapsed work track ── */
+.project-card--more {
+  width: clamp(16rem, 24vw, 20rem);
+  justify-content: center;
+  gap: 1.1rem;
+  align-items: flex-start;
+}
+
+.project-more-count {
+  font-family: var(--font-display);
+  font-variation-settings: 'SOFT' 30, 'WONK' 0;
+  font-size: 2.6rem;
+  line-height: 1;
+  color: var(--ember);
+  display: grid;
+  gap: 0.4rem;
+}
+
+.project-more-count span {
+  font-family: var(--font-body);
+  font-size: 0.62rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.project-more-sectors {
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  color: var(--dim);
+  line-height: 1.8;
+}
+
+.brief-form {
+  width: min(38rem, 100%);
+  padding: 2rem 1.9rem 1.9rem;
+  margin: 1.4rem auto 2.4rem;
+  text-align: left;
+  display: grid;
+  gap: 1.1rem;
+}
+
+.brief-form-title {
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  color: var(--clay);
+}
+
+.brief-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.1rem;
+}
+
+.brief-field {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.brief-field > span {
+  font-size: 0.6rem;
+  letter-spacing: 0.26em;
+  color: var(--faint);
+}
+
+.brief-field input,
+.brief-field textarea {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--ink);
+  background: rgba(29, 33, 26, 0.65);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.8rem 0.95rem;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  resize: vertical;
+}
+
+.brief-field input::placeholder,
+.brief-field textarea::placeholder {
+  color: var(--faint);
+}
+
+.brief-field input:focus,
+.brief-field textarea:focus {
+  outline: none;
+  border-color: rgba(217, 230, 201, 0.55);
+  box-shadow: 0 0 0 3px rgba(217, 230, 201, 0.12);
+}
+
+.brief-submit-row {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.brief-submit-row .btn-primary {
+  border: none;
+  cursor: pointer;
+}
+
+.brief-submit-row .btn-primary:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.brief-status {
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  color: var(--glow);
+}
+
+.brief-status--error {
+  color: #e8b58a;
+}
+
+@media (max-width: 900px) {
+  .brief-row {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 2.2rem;
+  }
+
+  .footer-bar {
+    flex-direction: column;
+    gap: 0.8rem;
+    text-align: center;
+  }
+
+  .gallery {
+    margin-top: 3rem;
+  }
+
+  .gal-caption {
+    grid-template-columns: 1fr auto;
+  }
+
+  .gal-text {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo3d-pivot,
+  .logo3d-face {
+    animation: none;
+  }
+
+  .scrub .w {
+    opacity: 1 !important;
+  }
+
+  .gal-strip-inner {
+    transform: none;
+  }
+
+  .gal-face--front {
+    transform: none;
+  }
+}
+
+/* ─── v3: type character, cursor, liveliness ─── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.about-headline,
+.skills-headline,
+.contact-headline {
+  font-variation-settings: 'SOFT' 45, 'WONK' 1;
+}
+
+.about-headline {
+  font-size: clamp(2.2rem, 5.2vw, 4.2rem);
+}
+
+.skills-headline .accent {
+  font-variation-settings: 'SOFT' 80, 'WONK' 1;
+}
+
+.contact-headline {
+  font-size: clamp(2.6rem, 7vw, 5.6rem);
+}
+
+.project-title {
+  font-variation-settings: 'SOFT' 45, 'WONK' 1;
+}
+
+.stat-plaque-value,
+.stat-legend-value {
+  font-variation-settings: 'SOFT' 30, 'WONK' 0;
+}
+
+/* custom cursor */
+html.has-cursor,
+html.has-cursor a,
+html.has-cursor button {
+  cursor: none;
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  pointer-events: none;
+  border-radius: 50%;
+  display: none;
+}
+
+html.has-cursor .cursor-dot,
+html.has-cursor .cursor-ring {
+  display: block;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  background: var(--glow);
+  box-shadow: 0 0 12px rgba(217, 230, 201, 0.9);
+}
+
+.cursor-ring {
+  width: 36px;
+  height: 36px;
+  margin: -18px 0 0 -18px;
+  border: 1px solid rgba(217, 230, 201, 0.55);
+  opacity: 0.45;
+  transition: opacity 0.25s ease;
+  will-change: transform;
+}
+
+/* project cards get the shine treatment too */
+.project-card:not(.project-card--end)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(320px circle at var(--shine-x, 50%) var(--shine-y, 50%), rgba(217, 230, 201, 0.08), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.project-card:not(.project-card--end):hover::after {
+  opacity: 1;
+}
+
+@media (max-width: 900px) {
+  /* small enough that the authored line 2 stays on one line at 360px wide —
+     otherwise it re-wraps and the "on." orphan comes back */
+  .hero h1 {
+    font-size: clamp(1.95rem, 8.8vw, 3.1rem);
+    margin-bottom: 0.75rem;
+  }
+
+  .hero-stage {
+    padding-top: calc(3.6rem + 1vh);
+    gap: clamp(0.7rem, 1.6vh, 1.1rem);
+  }
+
+  /* the availability line must hold one line at 360px */
+  .hero-eyebrow {
+    font-size: 0.58rem;
+    letter-spacing: 0.16em;
+  }
+
+  .hero-credit {
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    margin-bottom: 0.7rem;
+  }
+
+  .hero-sub {
+    font-size: 0.92rem;
+    line-height: 1.5;
+  }
+
+  /* ledger under the copy; both full width */
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 1.6rem;
+  }
+
+  .hero-ledger {
+    max-width: none;
+    justify-self: stretch;
+    padding: 1rem 1.1rem 0.85rem;
+  }
+
+  .hero-ledger-sector {
+    margin-bottom: 0.7rem;
+  }
+
+  .hero-ledger-row {
+    grid-template-columns: 3.6rem 1fr;
+    gap: 0 0.7rem;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    padding-bottom: 0.65rem;
+  }
+
+  .hero-ledger-row--out {
+    padding-top: 0.65rem;
+  }
+
+  .hero-ledger-metric {
+    font-size: 1.5rem;
+  }
+
+  .hero-ledger-ticks {
+    padding-top: 0.85rem;
+  }
+
+  /* side by side saves ~58px of height over stacking */
+  .hero-actions {
+    gap: 1.1rem;
+  }
+
+  .hero-proof {
+    gap: 0.35rem 0.9rem;
+    padding-block: 0.6rem;
+  }
+
+  .hero-proof-badge {
+    border-right: none;
+    padding-right: 0;
+    font-size: 0.64rem;
+  }
+
+  .hero-proof-facts {
+    gap: 0.25rem 0.9rem;
+  }
+
+  .hero-proof-facts li,
+  .hero-proof-terms {
+    font-size: 0.56rem;
+    letter-spacing: 0.1em;
+  }
+
+  .hero-proof-terms {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .hero-logos {
+    gap: 0.4rem 1rem;
+    padding-top: 0.75rem;
+  }
+
+  .hero-logo {
+    font-size: 0.64rem;
+    letter-spacing: 0.1em;
+  }
+
+  .hero-logo-icon {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+
+  .brand {
+    font-size: 1.3rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .tech-tile,
+  .holo,
+  .holo::before {
+    animation: none;
+  }
+
+  /* all hero reduced-motion rules live here, in the last RM block */
+  .hero-letter,
+  .hero-actions > *,
+  .hero-ledger,
+  .hero-proof,
+  .hero-logos {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* the ledger stops cycling in JS; kill the cross-fade too */
+  .hero-ledger-state {
+    transition: none;
+  }
+
+  /* gallery annotations + autoplay clock + proof-frame sheen */
+  .gal-note,
+  .gal-note-line,
+  .shot-sheen {
+    animation: none;
+  }
+
+  .gal-note,
+  .gal-note-line {
+    opacity: 1;
+    transform: none;
+  }
+
+  .gal-note--left {
+    transform: translate(-100%, -50%);
+  }
+
+  .gal-note {
+    transform: translateY(-50%);
+  }
+
+  .gal-progress-fill {
+    animation: none;
+    transform: scaleX(1);
+  }
+
+  .shot-img {
+    transition: none;
+  }
+
+  .xp-line {
+    transform: none;
+  }
+
+  .about-headline,
+  .skills-headline,
+  .contact-headline {
+    clip-path: none !important;
+  }
+}
