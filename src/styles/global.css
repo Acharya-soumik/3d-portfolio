@@ -97,6 +97,9 @@ img {
   position: fixed;
   inset: 0;
   z-index: 0;
+  /* purely decorative — no touch or pointer may ever land on the canvas
+     (R3F canvases can carry touch-action styles that eat mobile swipes) */
+  pointer-events: none;
 }
 
 main {

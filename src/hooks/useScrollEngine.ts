@@ -19,17 +19,26 @@ export function useScrollEngine() {
     // iOS fires resize every time the URL bar collapses mid-scroll; without
     // this, every trigger refreshes DURING the scroll and the page hitches
     ScrollTrigger.config({ ignoreMobileResize: true })
-    const lenis = new Lenis({
-      duration: reduced ? 0 : 1.1,
-      smoothWheel: !reduced,
-      touchMultiplier: 1.4,
-    })
-    lenisRef.current = lenis
 
-    lenis.on('scroll', ScrollTrigger.update)
-    const tick = (time: number) => lenis.raf(time * 1000)
-    gsap.ticker.add(tick)
-    gsap.ticker.lagSmoothing(0)
+    // Touch devices get NO scroll library at all. iOS scrolling is already
+    // inertial, composited and 120Hz — a wheel-smoothing lib can only add
+    // listeners and raf work that fight it. Lenis is a desktop luxury;
+    // everything downstream (store updates, ScrollTrigger) also runs off
+    // native scroll events, so nothing else changes.
+    const touch = window.matchMedia('(pointer: coarse)').matches
+    let lenis: Lenis | null = null
+    let tick: ((time: number) => void) | null = null
+    if (!touch) {
+      lenis = new Lenis({
+        duration: reduced ? 0 : 1.1,
+        smoothWheel: !reduced,
+      })
+      lenisRef.current = lenis
+      lenis.on('scroll', ScrollTrigger.update)
+      tick = (time: number) => lenis!.raf(time * 1000)
+      gsap.ticker.add(tick)
+      gsap.ticker.lagSmoothing(0)
+    }
 
     let anchors: number[] = []
     const measure = () => {
@@ -47,9 +56,12 @@ export function useScrollEngine() {
     }
 
     let lastVelocity = 0
-    lenis.on('scroll', (e: { velocity: number }) => {
-      lastVelocity = e.velocity
-    })
+    let lastY = window.scrollY
+    if (lenis) {
+      lenis.on('scroll', (e: { velocity: number }) => {
+        lastVelocity = e.velocity
+      })
+    }
 
     const update = () => {
       if (anchors.length === 0) return
@@ -67,6 +79,12 @@ export function useScrollEngine() {
       // without flipping to the next one mid-section (projects is very tall)
       const chapterIndex = Math.min(SECTION_IDS.length - 1, Math.floor(chapter + 0.35))
 
+      // native path: velocity is the scroll delta between events (~a frame)
+      if (!lenis) {
+        lastVelocity = y - lastY
+        lastY = y
+      }
+
       const state = useScrollStore.getState()
       if (
         state.chapterIndex !== chapterIndex ||
@@ -77,26 +95,28 @@ export function useScrollEngine() {
       }
     }
 
-    lenis.on('scroll', update)
+    if (lenis) lenis.on('scroll', update)
     window.addEventListener('scroll', update, { passive: true })
+
+    const remeasure = () => {
+      measure()
+      update()
+    }
 
     // Same story for the camera anchors: a height-only resize on a touch
     // device is the browser chrome moving, not a real layout change — if we
     // re-measure, maxScroll shifts under the finger and the camera jumps.
-    const coarse = window.matchMedia('(pointer: coarse)').matches
     let lastWidth = window.innerWidth
     const onResize = () => {
-      if (coarse && window.innerWidth === lastWidth) return
+      if (touch && window.innerWidth === lastWidth) return
       lastWidth = window.innerWidth
-      measure()
-      update()
+      remeasure()
     }
     window.addEventListener('resize', onResize)
 
     // measure after layout + fonts settle
-    measure()
-    update()
-    const t1 = window.setTimeout(onResize, 300)
+    remeasure()
+    const t1 = window.setTimeout(remeasure, 300)
     document.fonts?.ready.then(() => {
       measure()
       ScrollTrigger.refresh()
@@ -107,7 +127,7 @@ export function useScrollEngine() {
     // locked page. Re-measure once the preloader releases.
     const unsubReady = useScrollStore.subscribe((s) => {
       if (s.ready) {
-        onResize()
+        remeasure()
         ScrollTrigger.refresh()
       }
     })
@@ -117,8 +137,8 @@ export function useScrollEngine() {
       unsubReady()
       window.removeEventListener('resize', onResize)
       window.removeEventListener('scroll', update)
-      gsap.ticker.remove(tick)
-      lenis.destroy()
+      if (tick) gsap.ticker.remove(tick)
+      lenis?.destroy()
       lenisRef.current = null
     }
   }, [])
