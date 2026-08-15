@@ -72,11 +72,14 @@ export function Hero({ lenis }: { lenis: React.RefObject<Lenis | null> }) {
         )
     }, root)
 
-    // the copy drifts against the pointer; the ledger and rail are anchored
+    // the copy drifts against the pointer; the ledger and rail are anchored.
+    // Touch devices skip it — there is no hover pointer to drift against, and
+    // a window pointermove listener has no business in the swipe path on iOS.
+    const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches
     const copy = root.current.querySelector<HTMLElement>('.hero-copy')
     let raf = 0
     const onMove = (e: PointerEvent) => {
-      if (reduced || !copy || raf) return
+      if (reduced || !fine || !copy || raf) return
       raf = requestAnimationFrame(() => {
         raf = 0
         const dx = (e.clientX / window.innerWidth - 0.5) * -18
@@ -84,7 +87,7 @@ export function Hero({ lenis }: { lenis: React.RefObject<Lenis | null> }) {
         copy.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0)`
       })
     }
-    window.addEventListener('pointermove', onMove)
+    if (fine) window.addEventListener('pointermove', onMove, { passive: true })
     return () => {
       ctx.revert()
       window.removeEventListener('pointermove', onMove)

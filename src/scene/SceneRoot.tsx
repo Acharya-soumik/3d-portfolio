@@ -1,4 +1,5 @@
-import { Canvas } from '@react-three/fiber'
+import { useEffect } from 'react'
+import { Canvas, useThree } from '@react-three/fiber'
 import { CameraRig } from './CameraRig'
 import { Terrain } from './Terrain'
 import { PineForest } from './PineForest'
@@ -23,18 +24,37 @@ const TREE_COUNT: Record<PerfTier, number> = { low: 150, medium: 280, high: 430 
    and foggy by design, and the fill-rate saving is what buys 60fps */
 const DPR_MAX: Record<PerfTier, number> = { low: 1, medium: 1.5, high: 2 }
 
+/**
+ * Touch devices render the scene at 30fps via demand-mode + a paced
+ * invalidate. iOS delays the START of every swipe while the main thread is
+ * busy — halving the frame budget is what makes scrolling feel free again.
+ * All useFrame work is delta-based, so nothing changes speed.
+ */
+function TouchFrameCap() {
+  const invalidate = useThree((s) => s.invalidate)
+  useEffect(() => {
+    const id = window.setInterval(() => invalidate(), 1000 / 30)
+    return () => window.clearInterval(id)
+  }, [invalidate])
+  return null
+}
+
 export function SceneRoot({ tier, reducedMotion }: { tier: PerfTier; reducedMotion: boolean }) {
   const animate = !reducedMotion
   const shadows = tier !== 'low'
+  const touch =
+    typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches
 
   return (
     <div className="scene" aria-hidden="true">
       <Canvas
         dpr={[1, DPR_MAX[tier]]}
         shadows={shadows ? 'soft' : false}
+        frameloop={touch ? 'demand' : 'always'}
         gl={{ antialias: tier !== 'low', powerPreference: 'high-performance', alpha: false }}
         camera={{ fov: 58, near: 0.1, far: 460, position: [0, 3.2, 15] }}
       >
+        {touch && <TouchFrameCap />}
         <color attach="background" args={['#1d211a']} />
         <fog attach="fog" args={['#242a1e', 48, 250]} />
 
