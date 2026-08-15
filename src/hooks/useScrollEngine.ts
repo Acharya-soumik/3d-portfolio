@@ -28,7 +28,14 @@ export function useScrollEngine() {
     const touch = window.matchMedia('(pointer: coarse)').matches
     let lenis: Lenis | null = null
     let tick: ((time: number) => void) | null = null
-    if (!touch) {
+    if (touch) {
+      // GSAP's purpose-built fix for iOS scroll jank: it takes over touch
+      // scrolling on the JS thread with proper momentum, so the scroll
+      // position, rAF animations and ScrollTriggers all advance in perfect
+      // lockstep — no compositor/main-thread desync, no delayed gesture
+      // starts, no URL-bar resizes mid-scroll.
+      ScrollTrigger.normalizeScroll(true)
+    } else {
       lenis = new Lenis({
         duration: reduced ? 0 : 1.1,
         smoothWheel: !reduced,
@@ -138,6 +145,7 @@ export function useScrollEngine() {
       window.removeEventListener('resize', onResize)
       window.removeEventListener('scroll', update)
       if (tick) gsap.ticker.remove(tick)
+      if (touch) ScrollTrigger.normalizeScroll(false)
       lenis?.destroy()
       lenisRef.current = null
     }
