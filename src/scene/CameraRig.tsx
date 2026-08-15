@@ -35,6 +35,12 @@ const SEGMENT_EASE: Record<number, (t: number) => number> = {
 }
 
 export function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
+  // On touch the camera tracks the finger much tighter: heavy damping makes
+  // the rAF-driven scene visibly trail the native, compositor-driven scroll,
+  // which reads as jitter. Desktop keeps the floatier cinematic lag.
+  const touch = useRef(
+    typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches,
+  )
   const targetPos = useRef(new THREE.Vector3(...POS[0]))
   const targetLook = useRef(new THREE.Vector3(...LOOK[0]))
   const currentLook = useRef(new THREE.Vector3(...LOOK[0]))
@@ -58,7 +64,7 @@ export function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
     targetLook.current.lerpVectors(a.current, b.current, f)
 
     const cam = state.camera as THREE.PerspectiveCamera
-    const lambda = reducedMotion ? 30 : 4.2
+    const lambda = reducedMotion ? 30 : touch.current ? 9 : 4.2
 
     // subtle idle float + mouse parallax
     const t = state.clock.elapsedTime

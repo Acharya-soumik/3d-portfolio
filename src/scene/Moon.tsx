@@ -7,6 +7,9 @@ import { useScrollStore } from '../store/useScrollStore'
 
 const RADIUS = 14
 
+// touch tracks tighter: a trailing moon against native scroll reads as jitter
+const DAMP = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches ? 8 : 3
+
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t
 
 /**
@@ -125,7 +128,7 @@ export function Moon({ animate = true }: { animate?: boolean }) {
       g.scale.setScalar(pose.scale)
       return
     }
-    const lambda = 3
+    const lambda = DAMP
     g.position.x = THREE.MathUtils.damp(g.position.x, pose.x, lambda, delta)
     g.position.y = THREE.MathUtils.damp(g.position.y, pose.y, lambda, delta)
     g.position.z = pose.z

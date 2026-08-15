@@ -2223,8 +2223,10 @@ html.is-loading .hero-logos {
   /* NB: hero h1 sizing lives in the LAST 900px block near the end of this
      file — a duplicate here would be dead code. */
 
+  /* shorter pin on phones: a long pinned chapter under a flicking thumb
+     reads as "the page is stuck", not as a set piece */
   .stats {
-    height: 260vh;
+    height: 170vh;
   }
 
   .stats-sticky {

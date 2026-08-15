@@ -8,6 +8,7 @@ const BG_A = new THREE.Color('#242619')
 const BG_B = new THREE.Color('#161d17')
 const FOG_A = new THREE.Color('#2d2d1f')
 const FOG_B = new THREE.Color('#1c2620')
+const DAMP = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches ? 8 : 3
 
 /**
  * Grades scene fog + clear color with scroll so the whole valley — not just
@@ -20,7 +21,7 @@ export function AtmosphereGrade() {
   useFrame((state, rawDelta) => {
     const delta = Math.min(rawDelta, 0.1)
     const { progress } = useScrollStore.getState()
-    damped.current = THREE.MathUtils.damp(damped.current, progress, 3, delta)
+    damped.current = THREE.MathUtils.damp(damped.current, progress, DAMP, delta)
     const p = damped.current
 
     const bg = state.scene.background

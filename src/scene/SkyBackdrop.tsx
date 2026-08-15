@@ -5,6 +5,7 @@ import { useScrollStore } from '../store/useScrollStore'
 import { moonPose } from './Moon'
 
 const PLANE_POS = new THREE.Vector3(0, 95, -352)
+const DAMP = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches ? 8 : 3
 const PLANE_W = 1400
 const PLANE_H = 420
 
@@ -69,7 +70,7 @@ export function SkyBackdrop() {
     const delta = Math.min(rawDelta, 0.1)
     const { progress } = useScrollStore.getState()
     // same damping as the moon itself, so the grade and glow track its motion
-    damped.current = THREE.MathUtils.damp(damped.current, progress, 3, delta)
+    damped.current = THREE.MathUtils.damp(damped.current, progress, DAMP, delta)
     const p = damped.current
     material.uniforms.uProgress.value = p
 
