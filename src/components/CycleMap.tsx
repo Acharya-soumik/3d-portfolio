@@ -74,10 +74,21 @@ export function CycleMap() {
     let last = performance.now()
     let activeIdx = -1
 
+    // don't spend frames on a wheel that isn't on screen (phones especially)
+    let visible = true
+    const sceneEl = wheel.current?.parentElement
+    const io = sceneEl
+      ? new IntersectionObserver(([e]) => {
+          visible = e.isIntersecting
+        })
+      : null
+    if (sceneEl && io) io.observe(sceneEl)
+
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick)
       const dt = Math.min(now - last, 100)
       last = now
+      if (!visible) return
       if (!document.hidden) angle = (angle + (dt * 360) / REV_MS) % 360
 
       const w = wheel.current
@@ -92,7 +103,10 @@ export function CycleMap() {
       }
     }
     raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+    return () => {
+      cancelAnimationFrame(raf)
+      io?.disconnect()
+    }
   }, [n, step])
 
   return (

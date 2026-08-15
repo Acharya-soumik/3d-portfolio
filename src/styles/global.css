@@ -413,7 +413,12 @@ main {
   will-change: transform;
 }
 
+/* Everything the entrance timeline animates starts hidden in CSS — otherwise
+   it paints at full opacity for the frames between the preloader lifting and
+   GSAP applying its from-state, and the visitor sees it flash out and replay.
+   .hero-letter is the h1: it MUST be in this list. */
 .hero-el,
+.hero-letter,
 .hero-actions > *,
 .hero-ledger,
 .hero-proof,
@@ -2142,6 +2147,24 @@ html.is-loading .hero-logos {
   transform: translateY(-2px);
 }
 
+/* ─── mobile perf ───
+   Continuous card repaints (animated conic borders, sheen sweeps) and
+   backdrop blurs are what make phones stutter. The static frame keeps the
+   look; the GPU keeps its budget. Desktop is untouched. */
+@media (max-width: 900px), (pointer: coarse) {
+  .holo,
+  .holo::before,
+  .tech-tile {
+    animation: none;
+  }
+
+  .gal-note-label {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(20, 23, 17, 0.85);
+  }
+}
+
 /* ─── responsive ─── */
 
 @media (max-width: 900px) {
@@ -2583,6 +2606,19 @@ button:focus-visible {
   inset: 0;
   z-index: 3;
   pointer-events: none;
+}
+
+/* While the strips flip, the outgoing labels + caption fade away instead of
+   floating over a photo that is mid-rebuild; the incoming ones re-mount
+   after the flip and play their entrance animations in sync. */
+.gal-notes,
+.gal-overlay {
+  transition: opacity 0.3s ease;
+}
+
+.gal-notes.is-flipping,
+.gal-overlay.is-flipping {
+  opacity: 0;
 }
 
 .gal-note {

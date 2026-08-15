@@ -214,7 +214,11 @@ export function Gallery() {
         {/* Field-note annotations + caption, laid over the frame. Sits above
             the strips and never takes the pointer, so the flip is untouched.
             Keyed on index so every label re-animates on each flip. */}
-        <div className="gal-notes" key={`notes-${index}`} aria-hidden="true">
+        <div
+          className={`gal-notes${next ? ' is-flipping' : ''}`}
+          key={`notes-${index}`}
+          aria-hidden="true"
+        >
           {current.notes.map((n) => (
             <span
               className={`gal-note gal-note--${n.side}`}
@@ -230,7 +234,7 @@ export function Gallery() {
 
         {/* visual only — the real <figcaption> is the last child of <figure>,
             which is where the spec requires it */}
-        <div className="gal-overlay" aria-hidden="true">
+        <div className={`gal-overlay${next ? ' is-flipping' : ''}`} aria-hidden="true">
           <p className="gal-tag mono" key={`tag-${index}`}>
             {current.tag}
           </p>
