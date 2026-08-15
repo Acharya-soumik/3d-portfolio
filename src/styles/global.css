@@ -61,7 +61,13 @@ body {
   font-size: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+  /* NEVER overflow-x: hidden here — on iOS Safari it turns body into the
+     scroll container, which un-pins every position:sticky chapter and makes
+     momentum swipes fight the page (the stats section scrolling straight
+     past its towers). clip clips without creating a scroll container.
+     The hidden line is only a fallback for pre-2022 browsers. */
   overflow-x: hidden;
+  overflow-x: clip;
 }
 
 ::selection {
