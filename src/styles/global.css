@@ -2195,6 +2195,74 @@ html.is-loading .hero-logos {
   }
 }
 
+/* ── touch scroll joystick: hold anywhere, drag to scroll ── */
+.joystick {
+  position: fixed;
+  z-index: 200;
+  translate: -50% -50%;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  pointer-events: none;
+  opacity: 0;
+  scale: 0.85;
+  transition: opacity 0.16s ease, scale 0.16s ease;
+}
+
+@media (pointer: coarse) {
+  .joystick {
+    display: flex;
+  }
+}
+
+.joystick.is-on {
+  opacity: 1;
+  scale: 1;
+}
+
+.joystick-track {
+  position: relative;
+  width: 2.5rem;
+  height: 7.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(20, 23, 17, 0.78);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
+}
+
+.joystick-knob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--ember);
+  box-shadow: 0 0 16px var(--ember-glow);
+}
+
+.joystick-arrow {
+  font-size: 0.7rem;
+  color: var(--faint);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
+  transition: color 0.15s ease;
+}
+
+.joystick.is-up .joystick-arrow--up,
+.joystick.is-down .joystick-arrow--down {
+  color: var(--ember);
+}
+
+/* while the stick owns the gesture, iOS must not start selecting text */
+html.joystick-on,
+html.joystick-on * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
 /* ─── responsive ─── */
 
 @media (max-width: 900px) {

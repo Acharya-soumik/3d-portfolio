@@ -3,6 +3,7 @@ import { useScrollEngine } from './hooks/useScrollEngine'
 import { SceneRoot } from './scene/SceneRoot'
 import { Preloader } from './components/Preloader'
 import { Cursor } from './components/Cursor'
+import { ScrollJoystick } from './components/ScrollJoystick'
 import { Nav } from './components/Nav'
 import { Hero } from './components/Hero'
 import { Stats } from './components/Stats'
@@ -22,6 +23,7 @@ export default function App() {
     <>
       <Preloader />
       <Cursor />
+      <ScrollJoystick />
       <SceneRoot tier={tier} reducedMotion={reducedMotion} />
       <Nav lenis={lenis} />
       <main>
