@@ -1,3 +1,4 @@
+import { scrollToElement } from '../lib/scrollToElement'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import type Lenis from 'lenis'
 import gsap from 'gsap'
@@ -120,7 +121,7 @@ export function Hero({ lenis }: { lenis: React.RefObject<Lenis | null> }) {
     const el = document.getElementById(id)
     if (!el) return
     if (lenis.current) lenis.current.scrollTo(el, { duration: 1.6 })
-    else el.scrollIntoView({ behavior: 'smooth' })
+    else scrollToElement(el)
   }
 
   const headline = identity.headlineLines.join(' ')

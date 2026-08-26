@@ -2455,72 +2455,131 @@ html.is-loading .hero-logos {
   }
 }
 
-/* ── touch scroll joystick: hold anywhere, drag to scroll ── */
-.joystick {
+/* ── touch scroll rail ──
+   On a touch device the finger no longer pans the page; this rail does. The
+   lock is CSS, not a blocking touchmove listener — a non-passive touchmove on
+   window costs every gesture its fast path, and we removed one of those from
+   this file for exactly that reason.
+
+   `pinch-zoom`, not `none`: panning is what we are taking away, and zoom is
+   not ours to take. Taps still produce clicks because nothing here calls
+   preventDefault on a touch. */
+html.rail-scroll,
+html.rail-scroll body {
+  touch-action: pinch-zoom;
+  overscroll-behavior: none;
+}
+
+/* Reads as chrome, not as an indicator. It is the only way to move the page
+   now, so it gets its own gutter — a faint plate and an edge hairline — rather
+   than floating over whatever content happens to be underneath it. */
+.scroll-rail {
   position: fixed;
-  z-index: 200;
-  translate: -50% -50%;
+  top: 4.6rem;
+  bottom: 1.6rem;
+  right: 0;
+  width: 2.4rem;
+  background: linear-gradient(to right, transparent, rgba(16, 20, 14, 0.55) 45%);
+  border-left: 1px solid var(--line-soft);
+  z-index: 40;
   display: none;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.35rem;
-  pointer-events: none;
-  opacity: 0;
-  scale: 0.85;
-  transition: opacity 0.16s ease, scale 0.16s ease;
+  /* the rail owns its own gestures completely */
+  touch-action: none;
+  cursor: grab;
 }
 
-@media (pointer: coarse) {
-  .joystick {
-    display: flex;
-  }
+/* only ever shown where the lock is actually in force */
+html.rail-scroll .scroll-rail {
+  display: block;
 }
 
-.joystick.is-on {
-  opacity: 1;
-  scale: 1;
+/* Reserve the gutter so content stops running underneath the rail — full-bleed
+   surfaces like the story card were having their right-hand type clipped by it.
+   On `main` rather than `body`, so the fixed nav and canvas keep the full
+   width and only the flowing content moves. */
+html.rail-scroll main {
+  padding-right: 2.4rem;
 }
 
-.joystick-track {
-  position: relative;
-  width: 2.5rem;
-  height: 7.5rem;
+.scroll-rail:focus-visible {
+  outline: 1px solid var(--clay);
+  outline-offset: 2px;
   border-radius: 999px;
-  border: 1px solid var(--line);
-  background: rgba(20, 23, 17, 0.78);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.6);
 }
 
-.joystick-knob {
+.scroll-rail-track {
   position: absolute;
-  top: 50%;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  translate: -50% 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0,
+    rgba(233, 230, 218, 0.16) 8%,
+    rgba(233, 230, 218, 0.16) 92%,
+    transparent 100%
+  );
+}
+
+.scroll-rail-thumb {
+  position: absolute;
+  top: 0;
   left: 50%;
   width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
+  margin-left: -0.75rem;
+  border-radius: 999px;
+  background: rgba(28, 24, 17, 0.95);
+  /* ember at rest, not only while held — this is the control, and a visitor
+     who cannot swipe has to be able to find it without being told */
+  border: 1px solid rgba(224, 149, 74, 0.55);
+  box-shadow: 0 0 12px -6px var(--ember);
+  display: grid;
+  place-items: center;
+  gap: 3px;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  /* height and translateY are written per frame from the scroll position */
+  will-change: transform;
+}
+
+/* three hairlines: reads as something to grab rather than a passing indicator */
+.scroll-rail-grip,
+.scroll-rail-grip::before,
+.scroll-rail-grip::after {
+  display: block;
+  width: 0.6rem;
+  height: 1px;
+  background: var(--clay);
+  content: '';
+}
+
+.scroll-rail-grip {
+  position: relative;
+}
+
+.scroll-rail-grip::before {
+  position: absolute;
+  top: -4px;
+  left: 0;
+}
+
+.scroll-rail-grip::after {
+  position: absolute;
+  top: 4px;
+  left: 0;
+}
+
+.scroll-rail.is-dragging .scroll-rail-thumb {
+  background: rgba(30, 26, 18, 0.95);
+  border-color: var(--ember);
+  box-shadow: 0 0 16px -4px var(--ember);
+}
+
+.scroll-rail.is-dragging .scroll-rail-grip,
+.scroll-rail.is-dragging .scroll-rail-grip::before,
+.scroll-rail.is-dragging .scroll-rail-grip::after {
   background: var(--ember);
-  box-shadow: 0 0 16px var(--ember-glow);
-}
-
-.joystick-arrow {
-  font-size: 0.7rem;
-  color: var(--faint);
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8);
-  transition: color 0.15s ease;
-}
-
-.joystick.is-up .joystick-arrow--up,
-.joystick.is-down .joystick-arrow--down {
-  color: var(--ember);
-}
-
-/* while the stick owns the gesture, iOS must not start selecting text */
-html.joystick-on,
-html.joystick-on * {
-  -webkit-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
 }
 
 /* ─── responsive ─── */

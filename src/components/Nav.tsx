@@ -1,3 +1,4 @@
+import { scrollToElement } from '../lib/scrollToElement'
 import { useEffect, useRef } from 'react'
 import type Lenis from 'lenis'
 import { useScrollStore, SECTION_IDS } from '../store/useScrollStore'
@@ -35,7 +36,7 @@ export function Nav({ lenis }: { lenis: React.RefObject<Lenis | null> }) {
     const el = document.getElementById(id)
     if (!el) return
     if (lenis.current) lenis.current.scrollTo(el, { duration: 1.6 })
-    else el.scrollIntoView({ behavior: 'smooth' })
+    else scrollToElement(el)
   }
 
   return (
