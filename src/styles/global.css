@@ -172,7 +172,10 @@ main {
   font-size: clamp(2rem, 4.6vw, 3.1rem);
   font-weight: 500;
   letter-spacing: -0.01em;
-  line-height: 0.9;
+  /* NOT 0.9 — a display serif's ink overflows a line box tighter than its font
+     size, and inside any overflow-hidden ancestor that shows up as the top of
+     the numeral sliced flat. */
+  line-height: 1;
   color: var(--ink);
   /* the numeral is the tallest thing on the line, so baseline-aligning the row
      to it would strand the label — nudge the label instead of the number */
@@ -1455,10 +1458,21 @@ html.is-loading .hero-logos {
   position: sticky;
   top: 0;
   height: 100vh;
-  overflow: hidden;
+  /* Clip the track sideways — that is the only axis that needs it — and leave
+     the vertical alone. `overflow: hidden` was cutting the section heading off
+     at the top whenever the content ran taller than the viewport. */
+  overflow-x: clip;
+  overflow-y: visible;
   display: flex;
   flex-direction: column;
+  /* `safe` is the whole point: plain `center` pushes overflow out of BOTH ends,
+     so on a short window the header went to -42px and lost its numeral. Safe
+     centring falls back to start-alignment the moment it would overflow, so
+     what gets pushed away is the bottom of the track, never the heading. */
   justify-content: center;
+  justify-content: safe center;
+  /* clear the fixed nav — the header was sitting underneath it */
+  padding-top: 5.4rem;
 }
 
 .projects-header {
@@ -2669,6 +2683,7 @@ html.rail-scroll main {
     height: auto;
     overflow: visible;
     display: block;
+    padding-top: 0;
   }
 
   .projects-header {
