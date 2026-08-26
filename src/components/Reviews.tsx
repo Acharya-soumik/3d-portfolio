@@ -1,3 +1,4 @@
+import { SectionMark } from './SectionMark'
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -48,7 +49,7 @@ export function Reviews() {
   return (
     <section className="reviews section scrim-left" ref={root}>
       <div className="container">
-        <p className="eyebrow">{reviews.eyebrow}</p>
+        <SectionMark>{reviews.eyebrow}</SectionMark>
         <h2 className="reviews-headline">{reviews.headline}</h2>
 
         <figure className="reviews-canvas">

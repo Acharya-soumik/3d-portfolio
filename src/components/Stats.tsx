@@ -1,3 +1,4 @@
+import { SectionMark } from './SectionMark'
 import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -101,7 +102,7 @@ export function Stats() {
     <section id="stats" className="stats" ref={root}>
       <div className="stats-sticky">
         <div className="container">
-          <p className="eyebrow">01 — The numbers</p>
+          <SectionMark n="01">The numbers</SectionMark>
         </div>
 
         {/* plaques: pinned above each tower by the scene once WebGL is live */}

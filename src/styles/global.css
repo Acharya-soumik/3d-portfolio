@@ -146,7 +146,17 @@ main {
   width: 100%;
 }
 
+/* ── section mark ──
+   These are the page's chapter breaks; as a single line of 0.72rem tracked
+   caps they read as captions and carried no weight at all. The numeral is what
+   gives the mark presence — display face, headline scale — while the label
+   stays quiet, because the section's real headline sits directly beneath and
+   the two must not compete. The rule running to the right edge is what turns a
+   label into an opening: it carries the eye across the full measure. */
 .eyebrow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
   font-family: var(--font-body);
   font-size: 0.72rem;
   font-weight: 600;
@@ -154,6 +164,37 @@ main {
   text-transform: uppercase;
   color: var(--clay);
   margin-bottom: 2.2rem;
+}
+
+.eyebrow-num {
+  font-family: var(--font-display);
+  font-variation-settings: 'SOFT' 30, 'WONK' 0;
+  font-size: clamp(2rem, 4.6vw, 3.1rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 0.9;
+  color: var(--ink);
+  /* the numeral is the tallest thing on the line, so baseline-aligning the row
+     to it would strand the label — nudge the label instead of the number */
+  align-self: center;
+}
+
+.eyebrow-text {
+  align-self: center;
+  padding-top: 0.15em;
+}
+
+.eyebrow-rule {
+  flex: 1;
+  height: 1px;
+  min-width: 2rem;
+  align-self: center;
+  background: linear-gradient(
+    to right,
+    var(--line) 0,
+    rgba(233, 230, 218, 0.03) 92%,
+    transparent 100%
+  );
 }
 
 .accent {
@@ -1878,10 +1919,19 @@ html.is-loading .hero-logos {
   color: var(--ink);
 }
 
+/* 20rem, not 15rem: at 15 the container fits FOUR columns, which split six
+   groups into 4 + 2 and left two dead cells hanging off the second row. Three
+   columns divide the six evenly, and the wider column lets the longer chips
+   ("Workflow automation", "Open-source models") sit two-up instead of each
+   claiming its own line. */
 .skills-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  gap: 2.6rem 2rem;
+  /* min(20rem, 100%), never a bare 20rem: the minimum in minmax() is HARD, so
+     on a 320px screen the column demanded 320px inside a 280px container and
+     pushed 40px of horizontal scroll onto the page. */
+  grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+  gap: 2.8rem 2.2rem;
+  align-items: start;
 }
 
 .skill-group-name {

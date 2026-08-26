@@ -396,7 +396,7 @@ export const reviews = {
   image: '/gallery/reviews.png',
   width: 1400,
   height: 1508,
-  eyebrow: '— The receipts',
+  eyebrow: 'The receipts',
   headline: 'Don’t take my word for it.',
   pull: '“Genuinely one of the best freelancer experiences I’ve had on Upwork.”',
   attribution: 'Verified client · 5.0',
@@ -518,6 +518,15 @@ export const skillGroups: { name: string; items: Skill[] }[] = [
       { name: 'TypeScript', icon: 'siTypescript' },
       { name: 'JavaScript', icon: 'siJavascript' },
       { name: 'GSAP', icon: 'siGreensock' },
+      { name: 'Three.js', icon: 'siThreedotjs' },
+    ],
+  },
+  {
+    name: 'DESIGN & UI/UX',
+    items: [
+      { name: 'UI/UX design', glyph: '◑' },
+      { name: 'Design systems', glyph: '⬡' },
+      { name: 'Prototyping', glyph: '▤' },
     ],
   },
   {
@@ -532,13 +541,25 @@ export const skillGroups: { name: string; items: Skill[] }[] = [
     ],
   },
   {
-    name: 'AI SYSTEMS',
+    name: 'AI & LLM',
     items: [
       { name: 'Claude', icon: 'siClaude' },
       { name: 'OpenAI', glyph: 'Ø' },
-      { name: 'RAG Pipelines', glyph: '¶' },
-      { name: 'AI Agents', glyph: '∴' },
+      { name: 'RAG pipelines', glyph: '¶' },
+      { name: 'AI agents', glyph: '∴' },
       { name: 'Voice AI', glyph: '~' },
+      { name: 'Open-source models', glyph: '◇' },
+      { name: 'Fine-tuning', glyph: '≡' },
+    ],
+  },
+  {
+    name: 'TESTING & AUTOMATION',
+    items: [
+      { name: 'Automated testing', glyph: '✓' },
+      { name: 'QA & review', glyph: '◎' },
+      { name: 'CI/CD', icon: 'siGithubactions' },
+      { name: 'Workflow automation', glyph: '⇄' },
+      { name: 'A/B infra', glyph: '⇅' },
     ],
   },
   {
@@ -548,7 +569,6 @@ export const skillGroups: { name: string; items: Skill[] }[] = [
       { name: 'Google Cloud', icon: 'siGooglecloud' },
       { name: 'Vercel', icon: 'siVercel' },
       { name: 'Multi-tenant', glyph: '⌘' },
-      { name: 'CI/CD', icon: 'siGithubactions' },
     ],
   },
 ]

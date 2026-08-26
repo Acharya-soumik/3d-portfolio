@@ -1,3 +1,4 @@
+import { SectionMark } from './SectionMark'
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -46,7 +47,7 @@ export function Skills() {
   return (
     <section id="skills" className="skills section scrim-left" ref={root}>
       <div className="container">
-        <p className="eyebrow">04 — The stack</p>
+        <SectionMark n="04">The stack</SectionMark>
         <h2 className="skills-headline">
           Tools change. <span className="accent">Shipping doesn’t.</span>
         </h2>

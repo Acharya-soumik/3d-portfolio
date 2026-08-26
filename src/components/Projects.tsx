@@ -1,3 +1,4 @@
+import { SectionMark } from './SectionMark'
 import { useEffect, useRef, useState } from 'react'
 import { links, projects } from '../content/data'
 import { useTiltGroup } from '../hooks/useTilt'
@@ -107,7 +108,7 @@ export function Projects() {
     <section id="projects" className="projects" ref={outer}>
       <div className="projects-sticky">
         <header className="projects-header container">
-          <p className="eyebrow">03 — Selected work</p>
+          <SectionMark n="03">Selected work</SectionMark>
           <p className="projects-counter mono" aria-hidden="true">
             {String(current).padStart(2, '0')} / {String(shown.length).padStart(2, '0')}
           </p>

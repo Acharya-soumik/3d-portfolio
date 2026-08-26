@@ -1,3 +1,4 @@
+import { SectionMark } from './SectionMark'
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -90,7 +91,7 @@ export function About() {
       </div>
       <div className="container">
         <div className="about-intro">
-          <p className="eyebrow">02 — The story</p>
+          <SectionMark n="02">The story</SectionMark>
           <h2 className="about-headline reveal">{about.headline}</h2>
           <div className="story-grid">
             {/* DOM-first so it stacks ABOVE the text on mobile; the desktop

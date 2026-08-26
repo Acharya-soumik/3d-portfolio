@@ -1,3 +1,4 @@
+import { SectionMark } from './SectionMark'
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -47,7 +48,7 @@ export function Experience() {
   return (
     <section id="experience" className="experience section scrim-left" ref={root}>
       <div className="container">
-        <p className="eyebrow">05 — The record</p>
+        <SectionMark n="05">The record</SectionMark>
         <div className="xp-timeline">
           <span className="xp-line" aria-hidden="true" />
           {experience.map((xp) => (

@@ -1,3 +1,4 @@
+import { SectionMark } from './SectionMark'
 import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -132,7 +133,7 @@ export function Contact() {
   return (
     <section id="contact" className="contact section scrim-center" ref={root}>
       <div className="container contact-inner">
-        <p className="eyebrow contact-el">06 — Get in touch</p>
+        <SectionMark n="06" className="contact-el">Get in touch</SectionMark>
         <h2 className="contact-headline contact-el">{contact.headline}</h2>
         <p className="contact-sub contact-el">{contact.sub}</p>
 
