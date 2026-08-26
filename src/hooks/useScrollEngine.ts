@@ -28,14 +28,7 @@ export function useScrollEngine() {
     const touch = window.matchMedia('(pointer: coarse)').matches
     let lenis: Lenis | null = null
     let tick: ((time: number) => void) | null = null
-    if (touch) {
-      // GSAP's purpose-built fix for iOS scroll jank: it takes over touch
-      // scrolling on the JS thread with proper momentum, so the scroll
-      // position, rAF animations and ScrollTriggers all advance in perfect
-      // lockstep — no compositor/main-thread desync, no delayed gesture
-      // starts, no URL-bar resizes mid-scroll.
-      ScrollTrigger.normalizeScroll(true)
-    } else {
+    if (!touch) {
       lenis = new Lenis({
         duration: reduced ? 0 : 1.1,
         smoothWheel: !reduced,
@@ -86,9 +79,14 @@ export function useScrollEngine() {
       // without flipping to the next one mid-section (projects is very tall)
       const chapterIndex = Math.min(SECTION_IDS.length - 1, Math.floor(chapter + 0.35))
 
-      // native path: velocity is the scroll delta between events (~a frame)
+      // Native path: velocity is the scroll delta between events. iOS does NOT
+      // deliver those evenly — during momentum they arrive in coalesced bursts,
+      // so the raw delta swings between 0 and 60px event to event. The camera
+      // reads velocity as speed (it widens FOV and rolls the frame), so those
+      // swings showed up as the whole scene twitching. One-pole filter: the
+      // number the scene sees now moves like the page actually moves.
       if (!lenis) {
-        lastVelocity = y - lastY
+        lastVelocity += (y - lastY - lastVelocity) * 0.16
         lastY = y
       }
 
@@ -145,7 +143,6 @@ export function useScrollEngine() {
       window.removeEventListener('resize', onResize)
       window.removeEventListener('scroll', update)
       if (tick) gsap.ticker.remove(tick)
-      if (touch) ScrollTrigger.normalizeScroll(false)
       lenis?.destroy()
       lenisRef.current = null
     }

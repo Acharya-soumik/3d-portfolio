@@ -11,7 +11,7 @@ import type { Project } from '../content/data'
  * card with no image yet still reads as finished rather than broken.
  */
 export function ProofShot({ project }: { project: Project }) {
-  const { shot, shotLabel, title, sector, visibility, href } = project
+  const { shot, shotLabel, shotPublic, title, sector, visibility, href } = project
   const isUrl = !!shot && /^https?:\/\//.test(shot)
   const src = shot ? (isUrl ? shot : photoSrc(shot as PhotoName, 1280)) : null
 
@@ -28,7 +28,19 @@ export function ProofShot({ project }: { project: Project }) {
 
       <div className="shot-frame">
         {src ? (
-          <img className="shot-img" src={src} alt={shotLabel ?? title} loading="lazy" />
+          /* decoding="async" matters on iOS: a lazy image that starts loading
+             as the card enters the viewport otherwise decodes on the main
+             thread, mid-scroll, and the frame visibly pops. width/height give
+             the 16:9 box its aspect up front so nothing reflows around it. */
+          <img
+            className="shot-img"
+            src={src}
+            alt={shotLabel ?? title}
+            loading="lazy"
+            decoding="async"
+            width={1280}
+            height={720}
+          />
         ) : (
           /* Placeholder: a schematic of an interface, not an empty box. The
              metric is deliberately absent — the card already states it just
@@ -51,7 +63,9 @@ export function ProofShot({ project }: { project: Project }) {
 
       <figcaption className="shot-cap mono">
         {shotLabel ?? title}
-        {visibility === 'nda' && <span className="shot-nda"> · internal, not public</span>}
+        {visibility === 'nda' && !shotPublic && (
+          <span className="shot-nda"> · internal, not public</span>
+        )}
       </figcaption>
     </figure>
   )

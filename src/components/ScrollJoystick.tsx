@@ -15,9 +15,10 @@ const MAX_SPEED = 2600
  * proportional to the drag — a precision alternative when iOS flick
  * scrolling misbehaves. Taps and normal swipes pass through untouched.
  *
- * While active it owns the gesture (capture-phase preventDefault), so the
- * native pan and ScrollTrigger's normalizer never fight it; scrolling is
- * driven directly with window.scrollBy from a rAF loop.
+ * While active it owns the gesture (capture-phase preventDefault) and scrolls
+ * with window.scrollBy from a rAF loop. That blocking listener is bound ONLY
+ * while the stick is up — see `show()` — because a standing non-passive
+ * touchmove on window costs every other swipe on the page its fast path.
  */
 export function ScrollJoystick() {
   const root = useRef<HTMLDivElement>(null)
@@ -53,6 +54,13 @@ export function ScrollJoystick() {
 
     const show = () => {
       active = true
+      // The drag listener is non-passive, and a non-passive touchmove on window
+      // tells Safari "JS might preventDefault this" — which disables the
+      // compositor scroll fast path for EVERY swipe on the page, joystick or
+      // not. That single listener was making the whole site feel heavy on iOS.
+      // Attach it only once the stick is actually up, drop it the moment it
+      // goes down, so an ordinary swipe never sees a blocking listener.
+      window.addEventListener('touchmove', onDragMove, { capture: true, passive: false })
       el.style.left = `${originX}px`
       el.style.top = `${originY}px`
       el.classList.add('is-on')
@@ -64,6 +72,11 @@ export function ScrollJoystick() {
     const reset = () => {
       window.clearTimeout(holdTimer)
       cancelAnimationFrame(raf)
+      if (active) {
+        window.removeEventListener('touchmove', onDragMove, {
+          capture: true,
+        } as EventListenerOptions)
+      }
       tracking = false
       active = false
       dy = 0
@@ -85,18 +98,21 @@ export function ScrollJoystick() {
       holdTimer = window.setTimeout(show, HOLD_MS)
     }
 
-    const onMove = (e: TouchEvent) => {
-      if (!tracking) return
+    /** Hold-window watcher. Passive: it only reads, so the fast path survives. */
+    const onTrackMove = (e: TouchEvent) => {
+      if (!tracking || active) return
       const t = e.touches[0]
-      if (!active) {
-        // moved before the hold landed — it's a swipe, hand it back
-        if (Math.hypot(t.clientX - originX, t.clientY - originY) > SLOP) {
-          window.clearTimeout(holdTimer)
-          tracking = false
-        }
-        return
+      // moved before the hold landed — it's a swipe, hand it back
+      if (Math.hypot(t.clientX - originX, t.clientY - originY) > SLOP) {
+        window.clearTimeout(holdTimer)
+        tracking = false
       }
-      dy = t.clientY - originY
+    }
+
+    /** Only bound while the stick is up. */
+    function onDragMove(e: TouchEvent) {
+      if (!active) return
+      dy = e.touches[0].clientY - originY
       e.preventDefault()
       e.stopPropagation()
     }
@@ -107,13 +123,13 @@ export function ScrollJoystick() {
     }
 
     window.addEventListener('touchstart', onStart, { capture: true, passive: true })
-    window.addEventListener('touchmove', onMove, { capture: true, passive: false })
+    window.addEventListener('touchmove', onTrackMove, { capture: true, passive: true })
     window.addEventListener('touchend', onEnd, { capture: true })
     window.addEventListener('touchcancel', onEnd, { capture: true })
     return () => {
       reset()
       window.removeEventListener('touchstart', onStart, { capture: true } as EventListenerOptions)
-      window.removeEventListener('touchmove', onMove, { capture: true } as EventListenerOptions)
+      window.removeEventListener('touchmove', onTrackMove, { capture: true } as EventListenerOptions)
       window.removeEventListener('touchend', onEnd, { capture: true } as EventListenerOptions)
       window.removeEventListener('touchcancel', onEnd, { capture: true } as EventListenerOptions)
     }

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import type Lenis from 'lenis'
 import { useScrollStore, SECTION_IDS } from '../store/useScrollStore'
 import { Logo } from './Logo'
@@ -15,7 +16,19 @@ const LABELS: Record<string, string> = {
 export function Nav({ lenis }: { lenis: React.RefObject<Lenis | null> }) {
   const active = useScrollStore((s) => s.chapterIndex)
   const ready = useScrollStore((s) => s.ready)
-  const progress = useScrollStore((s) => s.progress)
+  const bar = useRef<HTMLDivElement>(null)
+
+  // `progress` changes on EVERY scroll event. Subscribing to it as React state
+  // re-rendered the whole header (logo + 7 links) per event, which on iOS is
+  // main-thread work sitting directly in the scroll path. The bar is one
+  // transform — write it straight to the node and leave React out of it.
+  useEffect(() => {
+    const write = (p: number) => {
+      if (bar.current) bar.current.style.transform = `scaleX(${p.toFixed(4)})`
+    }
+    write(useScrollStore.getState().progress)
+    return useScrollStore.subscribe((s) => write(s.progress))
+  }, [])
 
   const go = (id: string) => (e: React.MouseEvent) => {
     e.preventDefault()
@@ -27,7 +40,7 @@ export function Nav({ lenis }: { lenis: React.RefObject<Lenis | null> }) {
 
   return (
     <>
-      <div className="scroll-progress" style={{ transform: `scaleX(${progress})` }} />
+      <div className="scroll-progress" ref={bar} />
       <header className={`nav${ready ? ' is-ready' : ''}`}>
         <a className="nav-mark" href="#hero" onClick={go('hero')} aria-label="Back to top">
           <Logo size="nav" />
@@ -45,7 +58,7 @@ export function Nav({ lenis }: { lenis: React.RefObject<Lenis | null> }) {
             </a>
           ))}
         </nav>
-        <a className="nav-cta" href="#contact" onClick={go('contact')}>
+        <a  className="nav-cta" href="#contact" onClick={go('contact')}>
           Hire me
         </a>
       </header>

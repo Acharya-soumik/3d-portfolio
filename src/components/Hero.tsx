@@ -5,6 +5,7 @@ import { brands, heroLedger, identity, links, proof } from '../content/data'
 import { useScrollStore } from '../store/useScrollStore'
 import { usePrefersReducedMotion } from '../hooks/usePerfTier'
 import { IconSvg } from './TechIcon'
+import { RangePlate } from './RangePlate'
 
 const CYCLE_MS = 4600
 
@@ -180,38 +181,14 @@ export function Hero({ lenis }: { lenis: React.RefObject<Lenis | null> }) {
             <p className="sr-only" aria-live="polite">
               {heroLedger[active].sector}: {heroLedger[active].shipped}
             </p>
-            {heroLedger.map((entry, i) => (
-              <article
-                className={`hero-ledger-state${i === active ? ' is-active' : ''}`}
-                key={entry.index}
-                aria-hidden={i !== active}
-              >
-                <p className="mono hero-ledger-sector">{entry.sector}</p>
-                <p className="hero-ledger-row">
-                  <span className="mono hero-ledger-key">Came in</span>
-                  <span>{entry.came}</span>
-                </p>
-                <p className="hero-ledger-row hero-ledger-row--out">
-                  <span className="mono hero-ledger-key">Shipped</span>
-                  <span>{entry.shipped}</span>
-                </p>
-                <p className="hero-ledger-metric">
-                  {entry.metric}
-                  <span className="mono">{entry.metricLabel}</span>
-                </p>
-              </article>
-            ))}
+            <RangePlate cases={heroLedger} active={active} />
             <div className="hero-ledger-ticks">
-              {heroLedger.map((entry, i) => (
-                <button
-                  type="button"
-                  className={`hero-tick${i === active ? ' is-active' : ''}`}
-                  key={entry.index}
-                  onClick={() => setActive(i)}
-                  aria-label={`Show ${entry.sector} case`}
-                  aria-pressed={i === active}
-                />
-              ))}
+              {/* the row of eight bars that used to live here echoed the three
+                  rails above it — four rows of marks saying the same thing.
+                  A counter says the position in two glyphs. */}
+              <p className="hero-ledger-count mono">
+                {String(active + 1).padStart(2, '0')} / {String(heroLedger.length).padStart(2, '0')}
+              </p>
               <div className="hero-ledger-nav">
                 <button
                   type="button"

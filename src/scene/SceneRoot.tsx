@@ -33,8 +33,20 @@ const DPR_MAX: Record<PerfTier, number> = { low: 1, medium: 1.5, high: 2 }
 function TouchFrameCap() {
   const invalidate = useThree((s) => s.invalidate)
   useEffect(() => {
-    const id = window.setInterval(() => invalidate(), 1000 / 30)
-    return () => window.clearInterval(id)
+    // Gate on rAF, not setInterval. A 33ms timer is not aligned to the display,
+    // so on a 60Hz panel it lands in a 1-2-1-2 frame beat and the scene judders
+    // even though it is "30fps" — and iOS defers timers harder than rAF while a
+    // scroll is in flight. Skipping every other vsync gives an even cadence.
+    let raf = 0
+    let last = 0
+    const tick = (now: number) => {
+      raf = requestAnimationFrame(tick)
+      if (now - last < 1000 / 32) return
+      last = now
+      invalidate()
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
   }, [invalidate])
   return null
 }

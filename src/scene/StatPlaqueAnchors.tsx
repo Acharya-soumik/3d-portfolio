@@ -34,9 +34,28 @@ export function StatPlaqueAnchors() {
   /** projected crowns: x in 0..3, y in 4..7 */
   const pts = useMemo(() => new Float32Array(TOWERS.length * 2), [])
 
+  /** Plaques were hidden last frame — skip the whole projection pass. */
+  const idle = useMemo(() => ({ was: false }), [])
+
   useFrame(({ camera, size }) => {
     const { chapter } = useScrollStore.getState()
     const win = chapterWindow(chapter)
+
+    // Outside the stats chapter every plaque is at opacity 0, but the pass
+    // still projected four crowns and wrote four elements' styles every single
+    // frame — DOM writes interleaved with the WebGL frame, for the whole rest
+    // of the page. Do the last hiding pass, then stand down until it reopens.
+    if (win <= 0) {
+      // still claim the layout on frame one, or the section would render its
+      // static fallback grid and then snap to floating plaques as you arrive
+      markStatPlaquesLive()
+      if (idle.was) return
+      idle.was = true
+      for (let i = 0; i < TOWERS.length; i++) placeStatPlaque(i, -1e4, -1e4, 1, 0)
+      return
+    }
+    idle.was = false
+
     const growth = statGrowth(chapter)
     const spread = towerSpread((camera as THREE.PerspectiveCamera).aspect)
 

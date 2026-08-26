@@ -36,13 +36,13 @@ export function Projects() {
     let raf = 0
     const count = expanded ? projects.length : PREVIEW_COUNT
 
+    const release = () => {
+      trackEl.style.transform = ''
+      outerEl.style.height = ''
+    }
+
     const apply = () => {
       raf = 0
-      if (!horizontal) {
-        trackEl.style.transform = ''
-        outerEl.style.height = ''
-        return
-      }
       const maxX = Math.max(0, trackEl.scrollWidth - window.innerWidth)
       // 1:1 px mapping: the section is exactly tall enough to play the track
       const needed = window.innerHeight + maxX
@@ -62,22 +62,44 @@ export function Projects() {
       if (!raf) raf = requestAnimationFrame(apply)
     }
 
+    // Phones stack the cards vertically — there is no track to translate. The
+    // listeners used to stay bound anyway and burn a rAF + two style writes on
+    // every scroll event, which on iOS is main-thread time inside the scroll
+    // itself. Bind them only in the mode that actually uses them.
+    const bind = () => {
+      window.addEventListener('scroll', onScroll, { passive: true })
+      window.addEventListener('resize', onScroll)
+    }
+    const unbind = () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (raf) cancelAnimationFrame(raf)
+      raf = 0
+    }
+
     const mq = window.matchMedia(DESKTOP)
     const onMedia = () => {
       horizontal = mq.matches
-      apply()
+      unbind()
+      if (horizontal) {
+        bind()
+        apply()
+      } else {
+        release()
+      }
     }
 
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
+    if (horizontal) {
+      bind()
+      apply()
+    } else {
+      release()
+    }
     mq.addEventListener('change', onMedia)
-    apply()
 
     return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
+      unbind()
       mq.removeEventListener('change', onMedia)
-      if (raf) cancelAnimationFrame(raf)
     }
   }, [expanded])
 

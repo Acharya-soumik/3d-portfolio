@@ -371,6 +371,7 @@ main {
   padding: 0.6rem 1.25rem;
   border-radius: 999px;
   transition: background 0.25s ease, transform 0.25s ease;
+  border: 2px dotted var(--ember);
 }
 
 .nav-cta:hover {
@@ -556,84 +557,185 @@ html.is-loading .hero-logos {
    hero's height, which invalidates anchors[1] in useScrollEngine. The card's
    height is the tallest entry, permanently. */
 .hero-ledger {
-  display: grid;
-  grid-template-rows: 1fr auto;
+  display: flex;
+  flex-direction: column;
   padding: 1.5rem 1.6rem 1.2rem;
-  max-width: 26rem;
+  max-width: 27rem;
   justify-self: end;
   width: 100%;
 }
 
-.hero-ledger-state {
+/* ── the range plate ──
+   The card's job is breadth, so the whole vocabulary is inscribed at once and
+   stays inscribed; the cycling case below only shows where one project sits
+   inside it.
+
+   Set as an INSCRIPTION, not as chips. The first pass rendered all twenty-one
+   tokens as letter-spaced caps at label size, which is fine for a two-word
+   label and unreadable noise at twenty-one — a keyword wall with no hierarchy
+   and nowhere for the eye to land. Caps and tracking are now spent only on the
+   three dimension keys; the vocabulary itself is body face, lowercase, at a
+   size you actually read, listed the way names are listed on a foundation
+   stone. */
+.range-plate {
+  display: grid;
+  gap: 0.9rem;
+  padding-bottom: 1.15rem;
+}
+
+/* One line per dimension: key, scale, live value. Stacked over three lines it
+   read as three loose paragraphs and cost the card ~60px of height for no
+   information — on one line the scale sits right beside the word it points
+   at, and the three rows line up into an instrument panel. */
+.range-row {
+  display: grid;
+  grid-template-columns: 5.6rem 7.2rem 1fr;
+  align-items: center;
+  gap: 0 0.85rem;
+}
+
+.range-key {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  font-size: 0.5rem;
+  letter-spacing: 0.32em;
+  color: var(--faint);
+}
+
+/* the breadth, stated as a number so it needs no reading at all */
+.range-count {
+  font-family: var(--font-display);
+  font-variation-settings: 'SOFT' 30, 'WONK' 0;
+  font-size: 0.82rem;
+  letter-spacing: 0;
+  color: var(--clay);
+}
+
+/* ── the scale ──
+   One tick per value in the dimension, on a hairline. The count reads as a
+   shape before it reads as a number, and the live tick is the only thing that
+   needs a word attached to it. */
+/* Held to a fixed width rather than stretched: spread across the whole card
+   the ticks read as stray hairs, and eight of them look the same as nine.
+   Grouped tight, the comb has a density you can compare at a glance. */
+.range-rail {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  height: 0.8rem;
+  padding: 0 1px;
+}
+
+.range-rail::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--line);
+}
+
+.range-tick {
+  position: relative;
+  width: 1px;
+  height: 0.46rem;
+  background: rgba(233, 230, 218, 0.28);
+  transition: height 0.5s cubic-bezier(0.2, 0.8, 0.3, 1), background 0.5s ease,
+    box-shadow 0.5s ease;
+}
+
+/* the reading head: taller, lit, and it travels as the cases turn over */
+.range-tick.is-on {
+  height: 0.8rem;
+  background: var(--ember);
+  box-shadow: 0 0 8px -1px var(--ember);
+}
+
+.range-live {
+  font-size: 0.76rem;
+  line-height: 1.35;
+  color: var(--ink);
+  text-transform: lowercase;
+}
+
+/* ── the live case: support for the plate, not the headline ── */
+.range-now {
+  display: grid;
+  border-top: 1px solid var(--line-soft);
+  padding-top: 0.95rem;
+}
+
+.range-case {
   grid-row: 1;
   grid-column: 1;
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(8px);
   transition: opacity 0.6s ease, transform 0.6s ease;
   pointer-events: none;
 }
 
-.hero-ledger-state.is-active {
+.range-case.is-active {
   opacity: 1;
   transform: none;
   pointer-events: auto;
 }
 
-.hero-ledger-sector {
-  font-size: 0.6rem;
-  letter-spacing: 0.28em;
+.range-who {
+  font-size: 0.52rem;
+  letter-spacing: 0.22em;
   color: var(--clay);
-  margin-bottom: 1.1rem;
+  margin-bottom: 0.6rem;
 }
 
-.hero-ledger-row {
-  display: grid;
-  grid-template-columns: 4.6rem 1fr;
-  gap: 0 0.9rem;
-  align-items: baseline;
-  font-size: 0.87rem;
-  line-height: 1.45;
+.range-arc {
+  font-size: 0.82rem;
+  line-height: 1.5;
   color: var(--dim);
-  padding-bottom: 0.9rem;
+  margin-bottom: 0.8rem;
 }
 
-.hero-ledger-row--out {
+.range-arc-turn {
+  color: var(--ember);
+  margin: 0 0.4rem;
+}
+
+.range-arc-out {
   color: var(--ink);
-  border-top: 1px solid var(--line-soft);
-  padding-top: 0.9rem;
 }
 
-.hero-ledger-key {
-  font-size: 0.56rem;
-  letter-spacing: 0.2em;
-  color: var(--faint);
-}
-
-.hero-ledger-metric {
+.range-metric {
   font-family: var(--font-display);
   font-variation-settings: 'SOFT' 30, 'WONK' 0;
-  font-size: 1.9rem;
+  font-size: 1.7rem;
   line-height: 1;
   color: var(--ember);
   display: flex;
   align-items: baseline;
-  gap: 0.6rem;
+  gap: 0.55rem;
 }
 
-.hero-ledger-metric span {
+.range-metric span {
   font-family: var(--font-body);
-  font-size: 0.58rem;
+  font-size: 0.54rem;
   letter-spacing: 0.18em;
   color: var(--faint);
 }
 
+.hero-ledger-count {
+  font-size: 0.56rem;
+  letter-spacing: 0.26em;
+  color: var(--faint);
+}
+
 .hero-ledger-ticks {
-  grid-row: 2;
-  grid-column: 1;
+  margin-top: auto;
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  padding-top: 1.2rem;
+  padding-top: 0.9rem;
 }
 
 /* the tick is a button; the visible bar is its ::after so the tap
@@ -2073,10 +2175,52 @@ html.is-loading .hero-logos {
 /* ─── footer (full) ─── */
 
 .footer {
+  position: relative;
   margin-top: 14vh;
   border-top: 1px solid var(--line-soft);
   padding-top: 3.5rem;
   text-align: left;
+  /* swap the section's bottom padding for the footer's own, so the footer box
+     (and the scrim it carries) runs all the way to the end of the page instead
+     of stopping short and leaving a lit strip of scene underneath. Net page
+     height and content position are unchanged. */
+  padding-bottom: 18vh;
+  margin-bottom: -18vh;
+}
+
+/* Scrim. The footer floats over the live scene, and the moon drifts straight
+   through it — bone-on-bone, unreadable. This is a full-bleed plate that fades
+   in over the top ~7rem and goes near-opaque for the rest, so the type always
+   has its own ground no matter what the 3D is doing behind it. */
+.footer::before {
+  content: '';
+  position: absolute;
+  /* Bleeds out by exactly the page gutter rather than 100vw. `100vw` INCLUDES
+     the scrollbar while the content box does not, so a centred 100vw plate sat
+     ~8px past each edge and gave the whole page a horizontal scroll — and on a
+     phone it widened the layout viewport, which pushed the fixed nav out with
+     it and cropped the CTA off the right. Gutter-relative is exact at every
+     width and never counts the scrollbar. */
+  left: calc(var(--pad) * -1);
+  right: calc(var(--pad) * -1);
+  top: 0;
+  /* matches the -6vh the section's own scrim already overhangs by, so the
+     plate covers that strip too without adding any new page height */
+  bottom: -6vh;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(29, 33, 26, 0.55) 0,
+    rgba(29, 33, 26, 0.94) 8rem,
+    rgba(29, 33, 26, 0.96) 100%
+  );
+  backdrop-filter: blur(7px) saturate(0.8);
+  -webkit-backdrop-filter: blur(7px) saturate(0.8);
+  /* the mask, not the gradient, is what feathers the *blur* in — without it
+     the backdrop-filter would cut a hard horizontal seam across the scene */
+  mask-image: linear-gradient(to bottom, transparent 0, #000 6rem);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 6rem);
 }
 
 .footer-grid {
@@ -2167,10 +2311,76 @@ html.is-loading .hero-logos {
     animation: none;
   }
 
+  /* THE work-card flicker.
+     `transform-style: preserve-3d` on the card opens a 3D rendering context,
+     and the children below sit on separate Z planes inside it. That layering
+     only exists to give the desktop cursor-tilt some depth — a touch device
+     never tilts a card, so on a phone it buys nothing and costs a great deal:
+     iOS Safari re-rasterises a preserve-3d subtree whose descendants carry
+     overflow:hidden + border-radius (the proof frame does both) on basically
+     every composite, and over a live WebGL canvas that shows up as the image
+     strobing as you scroll past. Flatten it and the frame goes still. */
+  .project-card {
+    transform-style: flat;
+  }
+
+  .project-card .project-top,
+  .project-card .project-metric,
+  .project-card .project-title,
+  .project-card .project-impact,
+  .project-card .project-stack {
+    transform: none;
+  }
+
+  /* the frame paints once and scrolls as a unit — no descendant can dirty the
+     card around it, and the rounded clip stops re-running per frame */
+  .shot-frame {
+    contain: paint;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+
+  /* an infinite background-position animation is a full repaint of a layer
+     sitting directly on top of the photo, forever, at scroll time */
+  .shot-sheen {
+    animation: none;
+  }
+
+  /* hover-only, and a live transition keeps the img in its own layer */
+  .shot-img {
+    transition: none;
+  }
+
+  /* cursor-shine wash: opacity 0 and unreachable without a hover pointer,
+     but still a compositable overlay per card */
+  .project-card:not(.project-card--end)::after {
+    display: none;
+  }
+
+  /* the track is `transform: none !important` here — a standing will-change
+     just pins a layer the phone never animates */
+  .projects-track {
+    will-change: auto;
+  }
+
   .gal-note-label {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     background: rgba(20, 23, 17, 0.85);
+  }
+
+  /* the footer scrim covers the whole viewport width — blurring that much
+     live canvas is the single most expensive thing on a phone. Drop the blur
+     and pay for the legibility in opacity instead. */
+  .footer::before {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: linear-gradient(
+      to bottom,
+      rgba(29, 33, 26, 0.82) 0,
+      rgba(29, 33, 26, 0.97) 8rem,
+      rgba(29, 33, 26, 0.98) 100%
+    );
   }
 
   /* 100vh sticky viewports resize every time the iOS toolbar collapses,
@@ -2456,33 +2666,33 @@ button:focus-visible {
 
 /* ─── 3D logo ─── */
 
-/* the circular logo badge that replaced the extruded S.A text mark */
+/* the SOUMIK lightbulb wordmark badge — sized by height, width follows */
 .logo-mark {
-  display: inline-block;
-  border-radius: 50%;
-  object-fit: cover;
+  display: block;
+  width: auto;
+  object-fit: contain;
   vertical-align: middle;
-  box-shadow: 0 0 0 1px var(--line), 0 4px 14px -6px rgba(0, 0, 0, 0.55);
-  transition: rotate 0.5s ease;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.55));
+  transition:
+    rotate 0.5s ease,
+    scale 0.5s ease;
 }
 
 .logo-mark:hover {
-  rotate: -8deg;
+  rotate: -3deg;
+  scale: 1.04;
 }
 
 .logo-mark--nav {
-  width: 2.3rem;
-  height: 2.3rem;
+  height: 2.1rem;
 }
 
 .logo-mark--footer {
-  width: 3.2rem;
-  height: 3.2rem;
+  height: 2.8rem;
 }
 
 .logo-mark--loader {
-  width: 5.4rem;
-  height: 5.4rem;
+  height: 4rem;
 }
 
 .logo3d {
@@ -3142,10 +3352,13 @@ button:focus-visible {
   line-height: 1.6;
 }
 
-/* phase accents: Build / Automate / Grow */
+/* Phase accents: Build / Test / Automate / Scale. Ordered so no two adjacent
+   slices sit close in tone — around the ring it reads ember → glow → clay →
+   ink → back to ember, and the two palest (glow, ink) are never neighbours. */
 .phase-0 { --phase: var(--ember); }
-.phase-1 { --phase: var(--clay); }
-.phase-2 { --phase: var(--ink); }
+.phase-1 { --phase: var(--glow); }
+.phase-2 { --phase: var(--clay); }
+.phase-3 { --phase: var(--ink); }
 
 /* ── the rotating 3D wheel — every viewport, radius clamped to fit ── */
 .cycle3d {
@@ -3165,9 +3378,14 @@ button:focus-visible {
 .cycle3d-scene::before {
   content: '';
   position: absolute;
-  inset: -6% -14%;
+  /* Bleeds by the page gutter, never by a percentage. A percentage is taken
+     from THIS box — which lives inside .container at 72rem — so -14% was 161px
+     a side while the gutter beside it was only 144px, and the difference became
+     horizontal page scroll. It got worse as the window narrowed: at 1200px the
+     same rule spilled 107px. The gutter is the exact room available. */
+  inset: -6% calc(var(--pad) * -1);
   background: radial-gradient(
-    ellipse 60% 55% at 50% 48%,
+    ellipse 72% 55% at 50% 48%,
     rgba(16, 20, 14, 0.72),
     rgba(16, 20, 14, 0.35) 55%,
     transparent 78%
@@ -3186,6 +3404,65 @@ button:focus-visible {
   will-change: transform;
 }
 
+/* ── the phase pie ──
+   Sized and placed exactly like the ring, so its 100-unit viewBox radius maps
+   onto --cycle-r and a slice drawn at angle θ lands under the chip at angle θ.
+   Every slice is static geometry inside a parent that is already transformed
+   per frame, so the pie costs nothing per frame — it rasterises once and rides
+   the wheel's existing composited transform. */
+.cycle3d-pie {
+  position: absolute;
+  top: calc(var(--cycle-r) * -1);
+  left: calc(var(--cycle-r) * -1);
+  width: calc(var(--cycle-r) * 2);
+  height: calc(var(--cycle-r) * 2);
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Each arc's length IS its stage count — that is the whole chart. Resting
+   opacity stays low: the lit chip at the front slot is the focal point of this
+   section, and a bright ring under it competes for the same attention. */
+.cycle-seg-band {
+  fill: var(--phase);
+  opacity: 0.2;
+  transition: opacity 0.55s ease;
+}
+
+/* Only a hair, so you can still see which phase you are inside. It used to
+   jump to 0.54 and that was the mistake: a whole 120° arc going bright reads
+   as "the ring is orange", not as "this stage is live" — and it drowned the
+   one segment that should be doing the talking. */
+.cycle-seg[data-on='true'] .cycle-seg-band {
+  opacity: 0.26;
+}
+
+/* The stage marker — the thing that actually lights up. A phase band spans up
+   to four stages, so it looks frozen while the highlight moves through it;
+   this belongs to ONE stage and burns ember under whichever chip is at the
+   front, so the ring reports exactly what the readout does. */
+.cycle-mark {
+  fill: var(--ember);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.cycle-mark[data-on='true'] {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cycle-mark {
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cycle-seg-band {
+    transition: none;
+  }
+}
+
 /* rings + spokes live IN the wheel plane, so they tilt and turn with it */
 .cycle3d-ring {
   position: absolute;
@@ -3193,13 +3470,16 @@ button:focus-visible {
   left: calc(var(--cycle-r) * -1);
   width: calc(var(--cycle-r) * 2);
   height: calc(var(--cycle-r) * 2);
-  border: 1px dashed rgba(233, 230, 218, 0.22);
+  /* the donut carries the structure now — this is just the chip orbit, kept
+     faint so it reads as a guide rather than a second competing ring */
+  border: 1px dashed rgba(233, 230, 218, 0.14);
   border-radius: 50%;
 }
 
+/* a single inner guide, so the cleared centre still has some floor under it */
 .cycle3d-ring--inner {
-  scale: 0.55;
-  border-color: rgba(233, 230, 218, 0.1);
+  scale: 0.5;
+  border-color: rgba(233, 230, 218, 0.08);
   border-style: solid;
 }
 
@@ -3207,10 +3487,14 @@ button:focus-visible {
   position: absolute;
   top: 0;
   left: 0;
-  width: var(--cycle-r);
+  /* Stops at the donut's inner edge, and the gradient holds it transparent
+     until well out from the hub — twelve spokes converging on a now-empty
+     centre read as a starburst, not as ticks. This way only the outer stub
+     shows, feeding each stage into its slice. */
+  width: calc(var(--cycle-r) * 0.78);
   height: 1px;
   transform-origin: 0 0;
-  background: linear-gradient(90deg, transparent 18%, rgba(233, 230, 218, 0.14) 85%);
+  background: linear-gradient(90deg, transparent 64%, rgba(233, 230, 218, 0.16) 97%);
 }
 
 /* flat overlay sharing the wheel's centre; chips are positioned by JS */
@@ -3242,18 +3526,23 @@ button:focus-visible {
   border-radius: 999px;
   background: rgba(24, 28, 20, 0.88);
   color: var(--dim);
-  transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, scale 0.4s ease;
+  /* NO scale here: size is written per frame by pose(), which ramps it off the
+     chip's depth so it grows into the front slot and compacts out of it. A CSS
+     scale would fight that write every frame. Colour and glow stay on a
+     transition — the class flips once per stage, so it has room to ease. */
+  transition: color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease,
+    background-color 0.4s ease;
 }
 
 /* the front slot always burns ember, whatever the phase */
 .cycle3d-chip.is-front {
   color: var(--ink);
   border-color: var(--ember);
+  background: rgba(30, 26, 18, 0.94);
   box-shadow:
     0 0 20px -4px var(--ember),
     0 0 44px -10px var(--ember-glow),
     0 0 44px -10px var(--ember);
-  scale: 1.12;
 }
 
 /* fixed centre readout — announces whatever the wheel brings to the front */
@@ -3309,14 +3598,31 @@ button:focus-visible {
   }
 }
 
+/* Reads as the sequence, not as a key: icon, phase, stage count, arrow, next.
+   Chevrons on the ring itself were tried and pulled — twelve of them turned a
+   calm disc into a busy one, and they had to point along the rotation rather
+   than along the running order, which is a thing you have to explain. Here the
+   order is just legible, left to right, standing still. */
 .cycle-legend {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.8rem 2rem;
+  align-items: center;
+  gap: 0.7rem 1rem;
   margin-top: 2rem;
   list-style: none;
   padding: 0;
+}
+
+/* Trailing, not leading. The row wraps on a phone, and an arrow at the START
+   of the second line reads as an indent; the same arrow at the END of the
+   first line reads as "continues overleaf", which is what it means. */
+.cycle-legend li:not(:last-child)::after {
+  content: '→';
+  color: var(--faint);
+  opacity: 0.55;
+  font-size: 0.7rem;
+  margin-left: 0.1rem;
 }
 
 .cycle-legend li {
@@ -3326,14 +3632,67 @@ button:focus-visible {
   font-size: 0.6rem;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: var(--dim);
+  color: var(--faint);
+  transition: color 0.45s ease;
 }
 
-.cycle-dot {
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 50%;
-  background: var(--phase);
+/* the phase currently at the front of the wheel */
+.cycle-legend li.is-on {
+  color: var(--phase);
+}
+
+/* Phase icons. They replaced the legend dots rather than joining them: the
+   dot's only job was carrying --phase as the pie's colour key, and an icon in
+   the same accent does that AND says which phase it is. Stroked, not filled,
+   to sit with letter-spaced caps rather than shout over them. */
+.cycle-phase-icon {
+  width: 0.92rem;
+  height: 0.92rem;
+  flex: none;
+  fill: none;
+  stroke: var(--phase);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.55;
+  transition: opacity 0.45s ease, filter 0.45s ease;
+}
+
+.cycle-legend li.is-on .cycle-phase-icon {
+  opacity: 1;
+  filter: drop-shadow(0 0 6px var(--phase));
+}
+
+/* the readout's own copy is always the live phase, so it never sits dimmed */
+.cycle3d-readout-phase {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+}
+
+.cycle3d-readout-phase .cycle-phase-icon {
+  width: 0.8rem;
+  height: 0.8rem;
+  opacity: 1;
+  /* the letter-spacing on the label pushes a trailing gap; match it so the
+     icon reads as centred against the word rather than crowding it */
+  margin-right: -0.1em;
+}
+
+/* eight teeth in a 15px box: at the shared weight the outline closes up on
+   itself and reads as a filled disc */
+.cycle-legend li .cycle-phase-icon {
+  stroke-width: 1.6;
+}
+
+/* the stage count — this is the number that sizes the slice */
+.cycle-legend-count {
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  color: var(--faint);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.08rem 0.36rem;
 }
 
 /* tighter chips on phones, and the readout lifts clear of the small ring */
@@ -3342,6 +3701,10 @@ button:focus-visible {
     font-size: 0.48rem;
     letter-spacing: 0.1em;
     padding: 0.35rem 0.55rem;
+  }
+
+  .cycle-legend {
+    gap: 0.7rem 1.4rem;
   }
 
   .cycle3d-scene {
@@ -3364,6 +3727,85 @@ button:focus-visible {
   .cycle3d-readout-phase,
   .cycle3d-readout-count {
     font-size: 0.5rem;
+  }
+}
+
+/* ── phones: the wheel becomes ticks + one label ──
+   Below this width --cycle-r collapses to ~110px, and twelve text pills on a
+   circle that small overlap no matter how they are placed. So the compaction
+   goes all the way: every stage that is not at the front shrinks to a
+   phase-coloured tick on the orbit, and the front slot is the only thing
+   carrying words — with the centre readout naming it anyway. The ring of ticks
+   doubles as the donut's key, since each takes its slice's colour. */
+@media (max-width: 768px) {
+  /* The old radius was sized so the widest TEXT chip cleared the screen edges
+     — with ticks instead of text that constraint is gone, and it was leaving
+     the wheel at barely a third of the width it could have. The chart needs
+     the room far more than the margins do. */
+  .cycle3d-scene {
+    --cycle-r: min(19rem, calc(50vw - 2.25rem));
+    /* shallower tilt = taller ellipse, and the focused chip lifts off the
+       orbit on top of that, so the stage needs more floor than desktop */
+    height: calc(var(--cycle-r) * 1.78 + 10rem);
+  }
+
+  .cycle3d-chip {
+    width: 0.52rem;
+    height: 0.52rem;
+    padding: 0;
+    border-radius: 50%;
+    border-color: transparent;
+    background: var(--phase);
+    /* the label is still in the DOM for the aria-label on .cycle3d, just not
+       taking up space here */
+    color: transparent;
+    overflow: hidden;
+    text-indent: -99em;
+    /* background-color is DELIBERATELY off the transition list here. A tick is
+       filled with its phase colour and the front pill is filled dark, so
+       leaving it animated meant every chip arriving at the front spent 0.4s as
+       a full-width orange slab with its label washed out inside it. Width
+       snaps anyway; the fill should snap with it. */
+    transition: color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  /* the front slot unfolds back into a real, readable pill */
+  .cycle3d-chip.is-front {
+    width: auto;
+    height: auto;
+    padding: 0.4rem 0.7rem;
+    border-radius: 999px;
+    border-color: var(--ember);
+    color: var(--ink);
+    background: rgba(30, 26, 18, 0.94);
+    overflow: visible;
+    text-indent: 0;
+  }
+
+  /* a tick has no box to glow, so the wheel keeps its light on the pill only */
+  .cycle3d-chip:not(.is-front) {
+    box-shadow: none;
+  }
+
+  /* The desktop glow is three stacked embers spreading 44px. Around a pill
+     that is 28px tall it stops being a halo and becomes a solid orange blob
+     with the label lost inside it — so the phone gets one tight glow, and an
+     opaque fill so none of it bleeds up through the pill. */
+  .cycle3d-chip.is-front {
+    background: rgb(28, 24, 17);
+    box-shadow: 0 0 14px -7px var(--ember), 0 0 26px -14px var(--ember);
+  }
+
+  /* the readout sits above the wheel here, clear of the scrim pooled behind
+     the disc — without its own cover it washes out against the lit hillside */
+  .cycle3d-scene::before {
+    inset: -14% calc(var(--pad) * -1) -6%;
+    background: radial-gradient(
+      ellipse 82% 62% at 50% 40%,
+      rgba(16, 20, 14, 0.8),
+      rgba(16, 20, 14, 0.45) 58%,
+      transparent 82%
+    );
   }
 }
 
@@ -3704,6 +4146,31 @@ html.has-cursor .cursor-ring {
     padding-top: 0.85rem;
   }
 
+  .range-row {
+    grid-template-columns: 5rem 1fr;
+    gap: 0.2rem 0.7rem;
+  }
+
+  /* Cap it here too. Left to fill 1fr the ticks spread so far apart that the
+     comb stops having a density to read — eight of them look like nine. */
+  .range-rail {
+    max-width: 8.5rem;
+  }
+
+  /* the value takes its own line under the scale, still in the value column */
+  .range-live {
+    grid-column: 2;
+    font-size: 0.74rem;
+  }
+
+  .range-arc {
+    font-size: 0.78rem;
+  }
+
+  .range-metric {
+    font-size: 1.45rem;
+  }
+
   /* side by side saves ~58px of height over stacking */
   .hero-actions {
     gap: 1.1rem;
@@ -3773,8 +4240,10 @@ html.has-cursor .cursor-ring {
     transform: none !important;
   }
 
-  /* the ledger stops cycling in JS; kill the cross-fade too */
-  .hero-ledger-state {
+  /* the plate stops cycling in JS; kill the cross-fade and the strike wipe */
+  .range-case,
+  .range-token,
+  .range-token::after {
     transition: none;
   }
 

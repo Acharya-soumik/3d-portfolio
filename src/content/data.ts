@@ -92,29 +92,36 @@ export const cycle = {
   headline: 'One engineer, the whole cycle.',
   sub: 'The stack it takes to win in today’s market — product scope to sales automation, every stage run end to end.',
   loop: 'ship → learn → ship again',
+  /**
+   * Four phases, in the order the wheel reads them. The stage counts are the
+   * chart: each phase's arc on the pie is sized by how many stages it owns, so
+   * the split (4 / 2 / 4 / 2) is a claim about where the work actually goes —
+   * keep the counts honest if you edit this.
+   */
   phases: [
     {
       name: 'Build',
-      stages: [
-        'Product scope',
-        'UI/UX design',
-        'Architecture',
-        'Engineering',
-        'QA & review',
-        'Deployment',
-      ],
+      icon: 'build',
+      stages: ['Product scope', 'UI/UX design', 'Architecture', 'Engineering'],
+    },
+    {
+      name: 'Test',
+      icon: 'test',
+      stages: ['QA & review', 'Automated testing'],
     },
     {
       name: 'Automate',
+      icon: 'automate',
       stages: [
-        'Automated testing',
+        'Deployment',
         'Support automation',
         'Marketing automation',
         'Sales automation',
       ],
     },
     {
-      name: 'Grow',
+      name: 'Scale',
+      icon: 'scale',
       stages: ['Self-improving SEO', 'Analytics & iteration'],
     },
   ],
@@ -134,6 +141,16 @@ export interface Project {
   shipped: string
   /** What I was on the project. */
   role: string
+  /**
+   * Which hats this was run in, and what kind of thing actually got built.
+   * `roles` is a list because most real projects are more than one — and that
+   * plurality is precisely what the range plate exists to show.
+   * These feed the hero range plate, whose whole vocabulary is DERIVED from
+   * them — so a claim cannot appear on the plate without a case behind it.
+   * Keep the wording short: these are read as plate tokens, not sentences.
+   */
+  roles: string[]
+  surfaces: string[]
   period: string
   /**
    * Proof shot. Drop a file in assets/shots, run `npm run images`, then put the
@@ -143,6 +160,13 @@ export interface Project {
   shot?: string
   /** Caption shown under the frame — what the shot actually shows. */
   shotLabel?: string
+  /**
+   * The shot itself is public (a marketing page, a launched surface) even
+   * though the build behind it is under NDA. Suppresses the caption's
+   * "internal, not public" note, which would otherwise sit under an image
+   * anyone can go and load. The links row still says the build is NDA'd.
+   */
+  shotPublic?: boolean
   /** Public link, if there is one to give. */
   href?: string
   /**
@@ -155,39 +179,26 @@ export interface Project {
 export const projects: Project[] = [
   {
     index: '01',
-    sector: 'FINTECH',
-    title: 'Payment rails at $350k a day',
+    sector: 'CONSUMER FINTECH',
+    title: 'Cards and UPI at 20M+ users',
     impact:
-      'Architected B2B payment infrastructure for a Series A fintech — multi-tenant, partner-configurable, generating 30Cr+ revenue in its first month with enterprise-grade reliability.',
-    metric: '$350k',
-    metricLabel: 'daily transaction volume',
-    stack: ['Node.js', 'TypeScript', 'PostgreSQL', 'AWS'],
-    came: 'Legacy payment stack, every partner config hard-coded.',
-    shipped: 'Multi-tenant rails clearing $350k a day, partner-configurable.',
-    role: 'Senior Software Engineer · Upswing',
-    period: '2023 — 2024',
+      'Consumer payments for one of India’s largest youth fintechs — UPI, credit and debit under a single spending account, across native apps, web and the infrastructure holding them up.',
+    metric: '1M+/day',
+    metricLabel: 'average transaction volume',
+    stack: ['Cross-platform', 'UPI', 'Cards', 'Infra'],
+    came: 'A consumer spending account to run on every platform its users arrive on.',
+    shipped: 'Cross-platform apps, web surfaces and infra clearing a million a day.',
+    role: 'Senior Engineer · FamPay (Trio)',
+    period: '2021 — 2023',
+    roles: ['Senior engineer', 'Design'],
+    surfaces: ['Cross-platform', 'Web apps', 'Infra'],
     visibility: 'nda',
-    shotLabel: 'Partner-configurable payment console',
+    shot: 'famapp-home',
+    shotLabel: 'famX by Trio — the consumer spending account',
+    shotPublic: true,
   },
   {
     index: '02',
-    sector: 'E-COMMERCE',
-    title: 'One codebase, every brand',
-    impact:
-      'Pod lead for migrating a 20M+ user e-commerce platform from Shopify to a scalable multi-brand Next.js architecture — single codebase, brand-level customization, full analytics.',
-    metric: '20M+',
-    metricLabel: 'users on the platform',
-    stack: ['Next.js', 'React', 'TypeScript', 'A/B Infra'],
-    came: 'Shopify storefront, 20M users, one brand at a time.',
-    shipped: 'One Next.js codebase, every brand, full event analytics.',
-    role: 'Pod lead · TMRW (Bewakoof)',
-    period: '2024 — 2025',
-    visibility: 'nda',
-    shot: 'bewakoof-home',
-    shotLabel: 'Multi-brand storefront on one codebase',
-  },
-  {
-    index: '03',
     sector: 'HEALTHTECH',
     title: 'Enterprise healthcare SaaS',
     impact:
@@ -198,13 +209,15 @@ export const projects: Project[] = [
     came: '190+ lab parameters, read off reports and typed by hand.',
     shipped: 'An LLM pipeline parsing every one into automated reports.',
     role: 'Member of Technical Staff · The Wellness Corner',
+    roles: ['Engineer'],
+    surfaces: ['Web apps', 'Dashboards'],
     period: '2025',
     visibility: 'nda',
     shot: 'wellness-health-checks',
     shotLabel: 'Automated lab report, 190+ parameters',
   },
   {
-    index: '04',
+    index: '03',
     sector: 'LEGALTECH',
     title: 'Founder: zero to revenue, solo',
     impact:
@@ -215,13 +228,15 @@ export const projects: Project[] = [
     came: 'An empty repo and a legal workflow that ran on phone calls.',
     shipped: 'MVP, CRM, dashboards and AI agents — to paying customers.',
     role: 'Founder & full-stack engineer',
+    roles: ['Founder'],
+    surfaces: ['Web apps', 'Dashboards'],
     period: 'Vakiltech',
     visibility: 'live',
     shot: 'vakiltech-hero',
     shotLabel: 'Vakiltech dashboard and AI agent console',
   },
   {
-    index: '05',
+    index: '04',
     sector: 'VOICE AI',
     title: 'Multilingual voice agents',
     impact:
@@ -235,10 +250,51 @@ export const projects: Project[] = [
     period: '2026',
     visibility: 'live',
     shot: 'gnani-hero',
+    roles: ['Engineer'],
+    surfaces: ['Voice agents'],
     shotLabel: 'Voice agent call flow, multilingual',
   },
   {
+    index: '05',
+    sector: 'E-COMMERCE',
+    title: 'One codebase, every brand',
+    impact:
+      'Pod lead for migrating a 20M+ user e-commerce platform from Shopify to a scalable multi-brand Next.js architecture — single codebase, brand-level customization, full analytics.',
+    metric: '20M+',
+    metricLabel: 'users on the platform',
+    stack: ['Next.js', 'React', 'TypeScript', 'A/B Infra'],
+    came: 'Shopify storefront, 20M users, one brand at a time.',
+    shipped: 'One Next.js codebase, every brand, full event analytics.',
+    role: 'Pod lead · TMRW (Bewakoof)',
+    roles: ['Pod lead'],
+    surfaces: ['Storefront'],
+    period: '2024 — 2025',
+    visibility: 'nda',
+    shot: 'bewakoof-home',
+    shotLabel: 'Multi-brand storefront on one codebase',
+  },
+  {
     index: '06',
+    sector: 'FINTECH',
+    title: 'Payment rails at $350k a day',
+    impact:
+      'Architected B2B payment infrastructure for a Series A fintech — multi-tenant, partner-configurable, generating 30Cr+ revenue in its first month with enterprise-grade reliability.',
+    metric: '$350k',
+    metricLabel: 'daily transaction volume',
+    stack: ['Node.js', 'TypeScript', 'PostgreSQL', 'AWS'],
+    came: 'Legacy payment stack, every partner config hard-coded.',
+    shipped: 'Multi-tenant rails clearing $350k a day, partner-configurable.',
+    role: 'Senior Software Engineer · Upswing',
+    roles: ['Engineer'],
+    surfaces: ['Payments'],
+    period: '2023 — 2024',
+    visibility: 'nda',
+    shot: 'upswing-home',
+    shotLabel: 'Upswing — the open-finance platform these rails run under',
+    shotPublic: true,
+  },
+  {
+    index: '07',
     sector: 'AI × SEO',
     title: 'SEO on autopilot',
     impact:
@@ -252,10 +308,12 @@ export const projects: Project[] = [
     period: '2026',
     visibility: 'live',
     shot: 'vakiltech-gsc',
+    roles: ['Engineer'],
+    surfaces: ['Pipelines'],
     shotLabel: 'Programmatic SEO pipeline output',
   },
   {
-    index: '07',
+    index: '08',
     sector: 'MEDIA / NEWS',
     title: 'The Tribunal — Voice of the MENA',
     impact:
@@ -269,6 +327,8 @@ export const projects: Project[] = [
     period: '2026',
     visibility: 'live',
     shot: 'tribunal-home',
+    roles: ['Engineer'],
+    surfaces: ['Web apps', 'CMS'],
     shotLabel: 'The Tribunal newsroom platform',
   },
 ]
@@ -277,11 +337,28 @@ export const projects: Project[] = [
  * Which projects the hero case ledger cycles through, in order. Three is the
  * limit — the card cross-fades in place and its height is the tallest entry.
  */
-const LEDGER_ORDER = ['02', '01', '03']
+/**
+ * The plate cycles EVERY case, not a curated three. Its whole job is range,
+ * and a subset would light only part of its own vocabulary — leaving tokens
+ * that never ignite, which reads as padding whether or not it is.
+ */
+export const heroLedger: Project[] = projects
 
-export const heroLedger: Project[] = LEDGER_ORDER.map(
-  (i) => projects.find((p) => p.index === i)!,
-)
+const uniq = (xs: string[]) => [...new Set(xs)]
+
+/**
+ * The range plate's vocabulary, derived from the cases rather than written
+ * beside them. Every token is backed by at least one project, so the breadth
+ * claim cannot drift away from the work that supports it — add a case and the
+ * plate grows itself; remove one and the token leaves with it.
+ *
+ * Order follows the work order, which is deliberate rather than alphabetical.
+ */
+export const rangePlate = {
+  sectors: uniq(projects.map((p) => p.sector)),
+  roles: uniq(projects.flatMap((p) => p.roles)),
+  surfaces: uniq(projects.flatMap((p) => p.surfaces)),
+}
 
 /**
  * Verbatim client feedback from the Upwork contract "Expert Setup for Claude

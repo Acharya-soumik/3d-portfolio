@@ -20,6 +20,10 @@ export const photos = {
     widths: [1920, 1280, 800],
     lqip: 'data:image/webp;base64,UklGRr4AAABXRUJQVlA4ILIAAADwAwCdASoYAA4APu1iqU2ppaOiMAgBMB2JQBdgMYOYxv3np7hNfCWAAP7A9gzzePw5ntXTiMCkqHcdRtZuHro+iOzT62iDcx+vH9lJcNdRQXSD/Wx395xj5JI95UTNZA1aqPaHL9aq5SgXGrU35Wf7eSnonA75kwfV7YH40plEXDMiNNpfHoHJQ3rhJ70XdeUZ3JWoeSSBIYrVgmhs2Ggk+AW/a5sfOjHrcW7Smj7CXAAA',
   },
+  'famapp-home': {
+    widths: [1920, 1280, 800],
+    lqip: 'data:image/webp;base64,UklGRoIAAABXRUJQVlA4IHYAAAAwBACdASoYAA4APu1orU2ppqSiMAgBMB2JZQDE98ACt4jGB6aJpXdONsAA/vEa//d278RlimdVVAOiBxdCwf87Hhi6qd4iy2KG3NPcvl45cFrTNTHcVqo6rCCovr9e8FId35ApwzgTuqFFpJo4WfYoxSuGAAAA',
+  },
   'gnani-hero': {
     widths: [1920, 1280, 800],
     lqip: 'data:image/webp;base64,UklGRmYAAABXRUJQVlA4IFoAAACQAwCdASoYAA4APu1iqU2ppaOiMAgBMB2JZQAAUqFYcn2fOBtgAP7x4MR7dgxgg79x4DblGn4xAqbZgmpRzJZNMDEQIap1md6ZCmGZ6Lm2sv7tBCljQlcXAAA=',
@@ -47,6 +51,10 @@ export const photos = {
   'tribunal-home': {
     widths: [1920, 1280, 800],
     lqip: 'data:image/webp;base64,UklGRmwAAABXRUJQVlA4IGAAAACQAwCdASoYAA4APu1iqU2ppaQiMAgBMB2JZwAAW9vfKBLSaDAgAP7vU6MWtFEEcQAXDVF49Is+FOhYUKHwQbtgPhf7foljiavqoAije6kpRW7tejeFABy1VU8QPJsAAAA=',
+  },
+  'upswing-home': {
+    widths: [1920, 1280, 800],
+    lqip: 'data:image/webp;base64,UklGRm4AAABXRUJQVlA4IGIAAADQAwCdASoYAA4APu1iqU2ppaOiMAgBMB2JZAC7AB3nfC5EX06NiAAA/u/78tN4HcqYyeGRfM724HWvH7lV93+828yoZgvKoJ2UD9tbN+I1lA/6XqRcXpNSYUR2nETuC7MAAA==',
   },
   'vakiltech-gsc': {
     widths: [1920, 1280, 800],
